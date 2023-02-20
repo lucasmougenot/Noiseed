@@ -29,6 +29,10 @@ public class Noiseed {
 	public static final String RULEKEY = "rules";
 	// Default image format
 	public static final String DEFAULT_IMAGE_FORMAT = "png";
+	// Percentage ratio estimates
+	public static final int ROWLIST_COST_WEIGHT  = 40;
+	public static final int RGBARRAY_COST_WEIGHT = 4;
+	public static final int IMAGE_COST_WEIGHT    = 56;
 
 	// Get an array of available formats
 	public static String[] availableFormats = ImageIO.getWriterFormatNames();
@@ -64,11 +68,9 @@ public class Noiseed {
 	// Flag that can be set externally via enableCalculateProgress()
 	private static boolean calculateProgress = false;
 	// Initialize estimates for progress calculation
-	private static long seedCost = 0;
-	private static long ruleCost = 0;
-	private static long rowlistCost = Long.MAX_VALUE;
+	private static long rowlistCost  = 0;
 	private static long rgbArrayCost = 0;
-	private static long imageCreationEstimate = 0;
+	private static long imageCost 	 = 0;
 
 	// rng used for seed and rule generation
 	private static Random rand = new Random();
@@ -225,45 +227,50 @@ public class Noiseed {
 		if (calculateProgress) {
 			// Reset progress to 0 (%)
 			setGenerationProgress(0, 100);
-			// Estimates for progress display
 			currentTotal = 0;
-			seedCost = keepCurrentSeed ? 0 : width;
-			ruleCost = keepCurrentRules ? 0 : (1 << n);
-			rowlistCost = (long) width * ((long) height - 1) * (long) n;
-			rgbArrayCost = (long) width * (long) height;
-			imageCreationEstimate = (long) width * (long) height;
-			maxTotal = seedCost + ruleCost + rowlistCost + rgbArrayCost + imageCreationEstimate;
+			// Very rough estimates for progress display
+			// Circa ROWLIST_COST_WEIGHT % of compute time
+			rowlistCost = (long) width * ((long) height - 1) * ROWLIST_COST_WEIGHT;
+			// Circa RGBARRAY_COST_WEIGHT % of compute time
+			rgbArrayCost = (long) width * (long) height * RGBARRAY_COST_WEIGHT;
+			// Circa IMAGE_COST_WEIGHT % of compute time
+			imageCost = (long) width * (long) height * IMAGE_COST_WEIGHT;
+			maxTotal = rowlistCost + rgbArrayCost + imageCost;
 		}
 
+		// Generate seed if needed
 		if (!keepCurrentSeed) {
-			// currentTotal += width
 			seed = createSeed(width); 
 		}
 
+		// Generate rules if needed
 		if (!keepCurrentRules) {
-			// currentTotal += (1 << n)
 			rules = createRules(n); 
 		}
 
-		// currentTotal += width * (height - 1)
-		rowlist = createRowlist(seed, rules, width, height, n); 
+		// Generate 2-D array representing pixels
+		rowlist = createRowlist(seed, rules, width, height, n);
 		
-		// currentTotal += width * height
-		rgbArray = createRgbArray(rowlist); 
+		// Generate 1-D array containing RGB values
+		rgbArray = createRgbArray(rowlist);
 
-		// estimate: (width * height * 1) / 6
+		// Initialize new BufferedImage
 		setImg(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
-		// Set estimated progress
-		if (calculateProgress) {
-			setGenerationProgress(seedCost + ruleCost + rowlistCost + rgbArrayCost + (imageCreationEstimate / 6), maxTotal);
-		}
 
-		// estimate: (width * height * 5) / 6
-		getImg().setRGB(0, 0, width, height, rgbArray, 0, width);
-		// Set progress to 100 (%)
-		if (calculateProgress) {
-			setGenerationProgress(100, 100);
+		// Set each pixel according to rgbArray
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				getImg().setRGB(x, y, rgbArray[y * width + x]);
+			}
+			// Keep track of "progress"
+			if (calculateProgress) {
+				currentTotal += width * IMAGE_COST_WEIGHT;
+				setGenerationProgress(currentTotal, maxTotal);
+			}
 		}
+		// The following call is equivalent to the nested for-loop calls to setRGB
+		// Performance is perhaps slightly better, but without progress tracking 
+		// getImg().setRGB(0, 0, width, height, rgbArray, 0, width);
 	}
 
 	/**
@@ -276,10 +283,6 @@ public class Noiseed {
 		byte[] newSeed = new byte[width];
 		for (int i = 0; i < width; i++) {
 			newSeed[i] = (byte) rand.nextInt(2);
-			// keep track of "progress"
-			if (calculateProgress) {
-				setGenerationProgress(++currentTotal, maxTotal);
-			}
 		}
 		return newSeed;
 	}
@@ -294,10 +297,6 @@ public class Noiseed {
 		HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
 		for (int i = 0; i < (1 << n); i++) {
 			newRules.put(i, (byte) rand.nextInt(2));
-			// keep track of "progress"
-			if (calculateProgress) {
-				setGenerationProgress(++currentTotal, maxTotal);
-			}
 		}
 		return newRules;
 	}
@@ -358,6 +357,11 @@ public class Noiseed {
 			}
 			// Add the newly generated row to newRowlist
 			newRowlist[i] = nextRow;
+			// Keep track of "progress"
+			if (calculateProgress) {
+				currentTotal += width * ROWLIST_COST_WEIGHT;
+				setGenerationProgress(currentTotal, maxTotal);
+			}
 		}
 		return newRowlist;
 	}
@@ -375,11 +379,14 @@ public class Noiseed {
 		// Set size
 		rgbArray = new int[rowWidth * colHeight];
 		// Fill rgbArray with color values according to rowlist
-		for (int i = 0; i < rowWidth * colHeight; i++) {
-			rgbArray[i] = rowlist[i / rowWidth][i % rowWidth] == 1 ? getColorOne() : getColorZero();
-			// keep track of "progress"
+		for (int i = 0; i < colHeight; i++) {
+			for (int j = 0; j < rowWidth; j++) {
+				rgbArray[i * rowWidth + j] = rowlist[i][j] == 1 ? getColorOne() : getColorZero();
+			}
+			// Keep track of "progress"
 			if (calculateProgress) {
-				setGenerationProgress(++currentTotal, maxTotal);
+				currentTotal += width * RGBARRAY_COST_WEIGHT;
+				setGenerationProgress(currentTotal, maxTotal);
 			}
 		}
 		return rgbArray;
