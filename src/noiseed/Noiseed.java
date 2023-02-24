@@ -320,7 +320,7 @@ public class Noiseed {
 						// Example for n = 3
 						// (row y-1) ... | ... [ MSB | BIT | LSB ] ... | ...
 						// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
-						if (newRowlist[y - 1][Math.floorMod((n / 2) - k + x, width)] == 1) {
+						if (newRowlist[y - 1][Math.floorMod((n / 2) - k, width)] == 1) {
 							ruleKey += 1 << k;
 						}
 					}
