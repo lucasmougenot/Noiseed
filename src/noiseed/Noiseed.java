@@ -358,14 +358,9 @@ public class Noiseed {
 	/**
 	 * Change one color in {@code img}.
 	 * 
-	 * @param newColor the RGB value for the new color
-	 * @param oldColor the RGB value for the old color
 	 * @param changeColorOne determines which color is changed
 	 */
-	public static void changeColor(int newColor, int oldColor, boolean changeColorOne) {
-		if (newColor == oldColor) {
-			return;
-		}
+	public static void changeColor(boolean changeColorOne) {
 		// Get sizes from rowlist (independent of global width and height)
 		int imageWidth = rowlist[0].length;
 		int imageHeight = rowlist.length;
