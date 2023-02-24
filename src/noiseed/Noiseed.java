@@ -339,10 +339,6 @@ public class Noiseed {
 				}
 				// Set the entry x according to calculated ruleKey
 				nextRow[x] = rules.get(ruleKey);
-				// Keep track of "progress"
-				if (calculateProgress) {
-					setGenerationProgress(++currentTotal, maxTotal);
-				}
 			}
 			// Add the newly generated row to newRowlist
 			newRowlist[y] = nextRow;
