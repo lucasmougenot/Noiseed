@@ -303,24 +303,24 @@ public class Noiseed {
 	public static byte[][] createRowlist(byte[] seed, HashMap<Integer, Byte> rules, int width, int height, int n) {
 		byte[][] newRowlist = new byte[height][width];
 		newRowlist[0] = seed;
-		// i ==> row-index
-		for (int i = 1; i < height; i++) {
+		// y ==> row-index (y-coordinate)
+		for (int y = 1; y < height; y++) {
 			byte[] nextRow = new byte[width];
 			// Set rulekey to 0 for each row
 			int ruleKey = 0;
-			// j ==> column-index of current row
-			for (int j = 0; j < width; j++) {
+			// x ==> column-index (x-coordinate) of current row
+			for (int x = 0; x < width; x++) {
 				// Calculate initial window once per loop
-				if (j == 0) {
-					// k ==> position of entry in [window] to calculate entry j
+				if (x == 0) {
+					// k ==> position of entry in [window] to calculate entry x
 					for (int k = 0; k < n; k++) {
 						// Example for n = 2
-						// (row i-1) ... | ... | ... [ MSB | LSB ] ... | ...
-						// (row i)   ... | j-2 | j-1 |  j  | j+1 | j+2 | ...
+						// (row y-1) ... | ... | ... [ MSB | LSB ] ... | ...
+						// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
 						// Example for n = 3
-						// (row i-1) ... | ... [ MSB | BIT | LSB ] ... | ...
-						// (row i)   ... | j-2 | j-1 |  j  | j+1 | j+2 | ...
-						if (newRowlist[i - 1][Math.floorMod((n / 2) - k + j, width)] == 1) {
+						// (row y-1) ... | ... [ MSB | BIT | LSB ] ... | ...
+						// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
+						if (newRowlist[y - 1][Math.floorMod((n / 2) - k + x, width)] == 1) {
 							ruleKey += 1 << k;
 						}
 					}
@@ -332,20 +332,20 @@ public class Noiseed {
 					// Shift left by 1
 					ruleKey <<= 1;
 					// Check rightmost entry of 
-					if (newRowlist[i - 1][Math.floorMod((n / 2) + j, width)] == 1) {
+					if (newRowlist[y - 1][Math.floorMod((n / 2) + x, width)] == 1) {
 						// Set LSB to 1 by bitwise OR with ...00001
 						ruleKey |= 1;
 					}
 				}
-				// Set the entry j according to calculated ruleKey
-				nextRow[j] = rules.get(ruleKey);
+				// Set the entry x according to calculated ruleKey
+				nextRow[x] = rules.get(ruleKey);
 				// Keep track of "progress"
 				if (calculateProgress) {
 					setGenerationProgress(++currentTotal, maxTotal);
 				}
 			}
 			// Add the newly generated row to newRowlist
-			newRowlist[i] = nextRow;
+			newRowlist[y] = nextRow;
 			// Keep track of "progress"
 			if (calculateProgress) {
 				currentTotal += width * ROWLIST_COST_WEIGHT;
