@@ -31,8 +31,7 @@ public class Noiseed {
 	public static final String DEFAULT_IMAGE_FORMAT = "png";
 	// Percentage ratio estimates
 	public static final int ROWLIST_COST_WEIGHT  = 40;
-	public static final int RGBARRAY_COST_WEIGHT = 4;
-	public static final int IMAGE_COST_WEIGHT    = 56;
+	public static final int IMAGE_COST_WEIGHT    = 60;
 
 	// Get an array of available formats
 	public static String[] availableFormats = ImageIO.getWriterFormatNames();
@@ -41,8 +40,6 @@ public class Noiseed {
 	private static byte[] seed;
 	// 2-dimensional array representing the image containing 0s and 1s
 	private static byte[][] rowlist;
-	// Array of RGB values
-	private static int[] rgbArray;
 	// Width and height of the image that is to be generated
 	// Width and height both need to be > 0
 	private static int width = 512;
@@ -69,7 +66,6 @@ public class Noiseed {
 	private static boolean calculateProgress = false;
 	// Initialize estimates for progress calculation
 	private static long rowlistCost  = 0;
-	private static long rgbArrayCost = 0;
 	private static long imageCost 	 = 0;
 
 	// rng used for seed and rule generation
@@ -231,11 +227,9 @@ public class Noiseed {
 			// Very rough estimates for progress display
 			// Circa ROWLIST_COST_WEIGHT % of compute time
 			rowlistCost = (long) width * ((long) height - 1) * ROWLIST_COST_WEIGHT;
-			// Circa RGBARRAY_COST_WEIGHT % of compute time
-			rgbArrayCost = (long) width * (long) height * RGBARRAY_COST_WEIGHT;
 			// Circa IMAGE_COST_WEIGHT % of compute time
 			imageCost = (long) width * (long) height * IMAGE_COST_WEIGHT;
-			maxTotal = rowlistCost + rgbArrayCost + imageCost;
+			maxTotal = rowlistCost + imageCost;
 		}
 
 		// Generate seed if needed
@@ -251,16 +245,14 @@ public class Noiseed {
 		// Generate 2-D array representing pixels
 		rowlist = createRowlist(seed, rules, width, height, n);
 		
-		// Generate 1-D array containing RGB values
-		rgbArray = createRgbArray(rowlist);
 
 		// Initialize new BufferedImage
 		setImg(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
 
-		// Set each pixel according to rgbArray
+		// Set each pixel according to the associated rowlist entry
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				getImg().setRGB(x, y, rgbArray[y * width + x]);
+				getImg().setRGB(x, y, rowlist[y][x] == 1 ? getColorOne() : getColorZero());
 			}
 			// Keep track of "progress"
 			if (calculateProgress) {
@@ -268,9 +260,6 @@ public class Noiseed {
 				setGenerationProgress(currentTotal, maxTotal);
 			}
 		}
-		// The following call is equivalent to the nested for-loop calls to setRGB
-		// Performance is perhaps slightly better, but without progress tracking 
-		// getImg().setRGB(0, 0, width, height, rgbArray, 0, width);
 	}
 
 	/**
@@ -367,33 +356,7 @@ public class Noiseed {
 	}
 
 	/**
-	 * Create an array with RGB values based on {@code rowlist}.
-	 * 
-	 * @param rowlist 2-dimensional byte array containing 0s and 1s
-	 * @return int array with color values, used to create a BufferedImage
-	 */
-	public static int[] createRgbArray(byte[][] rowlist) {
-		// Get sizes from rowlist (independent of global width and height)
-		int rowWidth = rowlist[0].length;
-		int colHeight = rowlist.length;
-		// Set size
-		rgbArray = new int[rowWidth * colHeight];
-		// Fill rgbArray with color values according to rowlist
-		for (int i = 0; i < colHeight; i++) {
-			for (int j = 0; j < rowWidth; j++) {
-				rgbArray[i * rowWidth + j] = rowlist[i][j] == 1 ? getColorOne() : getColorZero();
-			}
-			// Keep track of "progress"
-			if (calculateProgress) {
-				currentTotal += width * RGBARRAY_COST_WEIGHT;
-				setGenerationProgress(currentTotal, maxTotal);
-			}
-		}
-		return rgbArray;
-	}
-
-	/**
-	 * Change one color in {@code rgbArray} and {@code img}.
+	 * Change one color in {@code img}.
 	 * 
 	 * @param newColor the RGB value for the new color
 	 * @param oldColor the RGB value for the old color
@@ -405,15 +368,17 @@ public class Noiseed {
 		}
 		// Get sizes from rowlist (independent of global width and height)
 		int imageWidth = rowlist[0].length;
+		int imageHeight = rowlist.length;
 		// Control which color is changed
 		int colorToChange = changeColorOne ? 1 : 0;
-		for (int i = 0; i < rgbArray.length; i++) {
-			// Only change 1s XOR 0s
-			if (rowlist[i / imageWidth][i % imageWidth] == colorToChange) {
-				// Adjust rgbArray
-				rgbArray[i] = newColor;
-				// Replace single RGB values in img
-				getImg().setRGB(i % imageWidth, i / imageWidth, newColor);
+		// Loop through each rowlist entry
+		for (int y = 0; y < imageHeight; y++) {
+			for (int x = 0; x < imageWidth; x++) {
+				// Only change 1s XOR 0s
+				if (rowlist[y][x] == colorToChange) {
+					// Replace single RGB values in img
+					getImg().setRGB(x, y, colorToChange == 1 ? getColorOne() : getColorZero());
+				}
 			}
 		}
 	}
@@ -434,9 +399,13 @@ public class Noiseed {
 			int imageWidth = rowlist[0].length;
 			int imageHeight = rowlist.length;
 			// Need imageType to be TYPE_BYTE_BINARY
-			BufferedImage oneBitImage = new BufferedImage(imageWidth, height, BufferedImage.TYPE_BYTE_BINARY);
+			BufferedImage oneBitImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_BINARY);
 			// Reconstruct the image
-			oneBitImage.setRGB(0, 0, imageWidth, imageHeight, rgbArray, 0, imageWidth);
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					oneBitImage.setRGB(x, y, rowlist[y][x] == 1 ? getColorOne() : getColorZero());
+				}
+			}
 			// Assign the newly constructed image
 			saveImage = oneBitImage;
 		}

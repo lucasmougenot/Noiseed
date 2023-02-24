@@ -790,14 +790,14 @@ public class GUI implements ActionListener, ChangeListener {
 		// Show color picker dialog
 		Color newColor = JColorChooser.showDialog(frame, activeColorString, new Color(currentColor));
 		if (newColor != null) {
-			// Change color in the rgbArray and img in Noiseed
-			Noiseed.changeColor(newColor.getRGB(), currentColor, isColorA);
 			// Set the new RGB value
 			if (isColorA) {
 				Noiseed.setColorOne(newColor.getRGB());
 			} else {
 				Noiseed.setColorZero(newColor.getRGB());
 			}
+			// Change img color in Noiseed
+			Noiseed.changeColor(newColor.getRGB(), currentColor, isColorA);
 			// Reflect changes in GUI
 			updateImage();
 		}
