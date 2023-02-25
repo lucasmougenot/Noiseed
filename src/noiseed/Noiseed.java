@@ -48,7 +48,7 @@ public class Noiseed {
 	private static int height = DEFAULT_HEIGHT;
 	// Rule complexity (2^n rule entries)
 	// n >= 0
-	// For example n = 0 = 2^0 = 1 = There is a single rule which is applied to all entries
+	// For example n = 0 = 2^0 = 1 = single rule which is applied to all entries
 	private static int n = DEFAULT_N;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
 	private static HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
@@ -179,7 +179,7 @@ public class Noiseed {
 
 			// Limit retries for following file existence checking
 			int retries = 5;
-			// If a file already exists regenerate a fileName and check whether that one is unused
+			// If file already exists, regenerate a fileName
 			while (fileExists) {
 				// Abort program after exhausting all retries
 				if (retries == 0) {
@@ -419,8 +419,7 @@ public class Noiseed {
 
 			// Assign the newly constructed image
 			saveImage = oneBitImage;
-		}
-		else {
+		} else {
 			// Assign the current image
 			saveImage = getImg();
 		}
