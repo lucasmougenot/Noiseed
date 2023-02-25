@@ -797,7 +797,7 @@ public class GUI implements ActionListener, ChangeListener {
 				Noiseed.setColorZero(newColor.getRGB());
 			}
 			// Change img color in Noiseed
-			Noiseed.changeColor(isColorA);
+			Noiseed.changeImageRGB(Noiseed.getImg(), Noiseed.getRowList(), newColor.getRGB(), isColorA);
 			// Reflect changes in GUI
 			updateImage();
 		}

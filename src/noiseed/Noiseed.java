@@ -372,23 +372,23 @@ public class Noiseed {
 	}
 
 	/**
-	 * Change one color in {@code img}.
+	 * Change one color in {@code img} based on {@code rowList}.
 	 * 
-	 * @param changeColorOne determines which color is changed
+	 * @param img the image which will have one color changed
+	 * @param rowList 2-D array representing the image containing 0s and 1s as entries
+	 * @param newColor the new RGB value
+	 * @param changeColorOne determines the pixels which will have their RGB value changed
 	 */
-	public static void changeColor(boolean changeColorOne) {
-		// Get sizes from rowList (independent of global width and height)
-		int imageWidth = rowList[0].length;
-		int imageHeight = rowList.length;
+	public static void changeImageRGB(BufferedImage img, byte[][] rowList, int newColor, boolean changeColorOne) {
 		// Control which color is changed
 		int colorToChange = changeColorOne ? 1 : 0;
 		// Loop through each rowList entry
-		for (int y = 0; y < imageHeight; y++) {
-			for (int x = 0; x < imageWidth; x++) {
+		for (int y = 0; y < img.getHeight(); y++) {
+			for (int x = 0; x < img.getWidth(); x++) {
 				// Only change 1s XOR 0s
 				if (rowList[y][x] == colorToChange) {
 					// Replace single RGB values in img
-					getImg().setRGB(x, y, colorToChange == 1 ? getColorOne() : getColorZero());
+					img.setRGB(x, y, newColor);
 				}
 			}
 		}
