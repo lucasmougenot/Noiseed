@@ -255,16 +255,7 @@ public class Noiseed {
 		setImg(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
 
 		// Set each pixel according to the associated rowList entry
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				getImg().setRGB(x, y, rowList[y][x] == 1 ? getColorOne() : getColorZero());
-			}
-			// Keep track of "progress"
-			if (calculateProgress) {
-				currentTotal += IMAGE_COST_WEIGHT;
-				setGenerationProgress(currentTotal, maxTotal);
-			}
-		}
+		setImageRGB(getImg(), getRowList(), getColorOne(), getColorZero());
 	}
 
 	/**
@@ -357,6 +348,27 @@ public class Noiseed {
 			}
 		}
 		return newRowList;
+	}
+
+	/**
+	 * Set colors in {@code img} based on {@code rowList}.
+	 * 
+	 * @param img the image which pixels will be colored
+	 * @param rowList 2-D array representing the image containing 0s and 1s as entries
+	 * @param colorOne the RGB value which fills pixels represented by a 1 in rowList
+	 * @param colorZero the RGB value which fills pixels represented by a 0 in rowList
+	 */
+	private static void setImageRGB(BufferedImage img, byte[][] rowList, int colorOne, int colorZero) {
+		for (int y = 0; y < img.getHeight(); y++) {
+			for (int x = 0; x < img.getWidth(); x++) {
+				img.setRGB(x, y, rowList[y][x] == 1 ? colorOne : colorZero);
+			}
+			// Keep track of "progress"
+			if (calculateProgress) {
+				currentTotal += IMAGE_COST_WEIGHT;
+				setGenerationProgress(currentTotal, maxTotal);
+			}
+		}
 	}
 
 	/**
