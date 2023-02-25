@@ -23,7 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Noiseed {
-	
+
 	// Default image sizes
 	public static final int DEFAULT_WIDTH = 512;
 	public static final int DEFAULT_HEIGHT = 512;
@@ -35,9 +35,9 @@ public class Noiseed {
 	// Default image format
 	public static final String DEFAULT_IMAGE_FORMAT = "png";
 	// Percentage ratio estimates
-	public static final int ROWLIST_COST_WEIGHT  = 40;
-	public static final int IMAGE_COST_WEIGHT    = 60;
-	
+	public static final int ROWLIST_COST_WEIGHT	= 40;
+	public static final int IMAGE_COST_WEIGHT	= 60;
+
 	// First row of the image containing 0s and 1s
 	private static byte[] seed;
 	// 2-dimensional array representing the image containing 0s and 1s
@@ -47,7 +47,7 @@ public class Noiseed {
 	private static int width = DEFAULT_WIDTH;
 	private static int height = DEFAULT_HEIGHT;
 	// Rule complexity (2^n rule entries)
-	// n >= 0 
+	// n >= 0
 	// For example n = 0 = 2^0 = 1 = There is a single rule which is applied to all entries
 	private static int n = DEFAULT_N;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
@@ -70,8 +70,8 @@ public class Noiseed {
 	// Flag that can be set externally via enableCalculateProgress()
 	private static boolean calculateProgress = false;
 	// Initialize estimates for progress calculation
-	private static long rowListCost  = 0;
-	private static long imageCost 	 = 0;
+	private static long rowListCost	= 0;
+	private static long imageCost	= 0;
 
 	// rng used for seed and rule generation
 	private static Random rand = new Random();
@@ -117,7 +117,7 @@ public class Noiseed {
 		int amountToBeGenerated = 1;
 		// Default value leads to endless while loop
 		boolean decrementAmount = false;
-		// Default value leads to 
+		// Default value leads to
 		// keepCurrentSeed = false
 		// keepCurrentRules = false
 		int statusCodeInfoFile = 0;
@@ -168,11 +168,11 @@ public class Noiseed {
 			boolean keepCurrentRules = keepRulesFromStatusCode(statusCodeInfoFile);
 			// Generate the image
 			generateImage(width, height, n, keepCurrentSeed, keepCurrentRules);
-			
+
 			// Generate a fileName
 			String fileName = Helper.dateTimeToString();
 			String fullImageFileName = Helper.setFileName(fileName, format);
-			
+
 			// Check if a file with fileName already exists
 			Path path = Path.of(fullImageFileName);
 			boolean fileExists = Files.exists(path);
@@ -222,7 +222,7 @@ public class Noiseed {
 	 * @param keepCurrentSeed decide whether to keep the current {@code seed} or not
 	 * @param keepCurrentRules decide whether to keep the current {@code rules} or not 
 	 * 
-	*/
+	 */
 	public static void generateImage(int width, int height, int n, boolean keepCurrentSeed, boolean keepCurrentRules) {
 		// Check if progress tracking is desired
 		if (calculateProgress) {
@@ -239,17 +239,16 @@ public class Noiseed {
 
 		// Generate seed if needed
 		if (!keepCurrentSeed) {
-			seed = createSeed(width); 
+			seed = createSeed(width);
 		}
 
 		// Generate rules if needed
 		if (!keepCurrentRules) {
-			rules = createRules(n); 
+			rules = createRules(n);
 		}
 
 		// Generate 2-D array representing pixels
 		rowList = createRowList(seed, rules, width, height, n);
-		
 
 		// Initialize new BufferedImage
 		setImg(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
@@ -393,7 +392,7 @@ public class Noiseed {
 			}
 		}
 	}
-	
+
 	/**
 	 * Write {@code img} to file.
 	 * 
@@ -408,7 +407,7 @@ public class Noiseed {
 		if (format.equalsIgnoreCase("wbmp")) {
 			// Need imageType to be TYPE_BYTE_BINARY
 			BufferedImage oneBitImage = new BufferedImage(getImg().getWidth(), getImg().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
-			
+
 			// Keep track of progress tracking flag
 			boolean currentProgressFlag = calculateProgress;
 			// Disable progress tracking temporarily
@@ -455,7 +454,7 @@ public class Noiseed {
 		pw.close();
 		return true;
 	}
-	
+
 	/**
 	 * Create a {@code JSONObject} from {@code seed} and/or {@code rules},
 	 * <p>
@@ -543,29 +542,29 @@ public class Noiseed {
 			int len = rulesJSON.length();
 			// Make sure entries sum up to a power of two
 			// https://www.geeksforgeeks.org/java-program-to-find-whether-a-no-is-power-of-two/
-			int ceil  = (int)(Math.ceil(Math.log(len) / Math.log(2)));
-			int floor = (int)(Math.floor(Math.log(len) / Math.log(2)));
+			int ceil = (int) (Math.ceil(Math.log(len) / Math.log(2)));
+			int floor = (int) (Math.floor(Math.log(len) / Math.log(2)));
 			if (len > 0 && floor == ceil) {
 				HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(len);
 				// Iterate over keys
-			 	for (Integer i = 0; i < len; i++) {
+				for (Integer i = 0; i < len; i++) {
 					// Check that key exists and is not null
-			 		if (rulesJSON.has(i.toString()) && !rulesJSON.isNull(i.toString())) {
+					if (rulesJSON.has(i.toString()) && !rulesJSON.isNull(i.toString())) {
 						// Check that value is a Number
-			 			if (rulesJSON.get(i.toString()) instanceof Number) {
-			 				newRules.put(i, rulesJSON.getNumber(i.toString()).byteValue());
-			 			} else {
+						if (rulesJSON.get(i.toString()) instanceof Number) {
+							newRules.put(i, rulesJSON.getNumber(i.toString()).byteValue());
+						} else {
 							// Associated value is not a Number
-			 				return statusCode;
-			 			}
-			 		} else {
+							return statusCode;
+						}
+					} else {
 						// Key does not exist or value for associated key does not exist
-			 			return statusCode;
-			 		}
-			 	}
-			 	// If this part is reached the newRules are valid
-			 	setRuleComplexity(ceil);
-			 	rules = newRules;
+						return statusCode;
+					}
+				}
+				// If this part is reached the newRules are valid
+				setRuleComplexity(ceil);
+				rules = newRules;
 				statusCode += 2;
 			} else {
 				// len is not a power of two
@@ -762,13 +761,13 @@ public class Noiseed {
 	public static int getSeedLength() {
 		return Noiseed.seed.length;
 	}
-	
+
 	/**
 	 * Get rule complexity of the current {@code rules}, may be different from {@code n}.
 	 * 
 	 * @return the value n where {@code rules.size() == 2^n}
 	 */
 	public static int getCurrentRulesN() {
-		return (int)(Math.log(Noiseed.rules.size()) / Math.log(2));
+		return (int) (Math.log(Noiseed.rules.size()) / Math.log(2));
 	}
 }
