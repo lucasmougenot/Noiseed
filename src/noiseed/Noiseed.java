@@ -406,17 +406,18 @@ public class Noiseed {
 		BufferedImage saveImage;
 		// wbmp is supposed to be always supported
 		if (format.equalsIgnoreCase("wbmp")) {
-			// Get dimensions from rowList
-			int imageWidth = rowList[0].length;
-			int imageHeight = rowList.length;
 			// Need imageType to be TYPE_BYTE_BINARY
-			BufferedImage oneBitImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_BINARY);
+			BufferedImage oneBitImage = new BufferedImage(getImg().getWidth(), getImg().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+			
+			// Keep track of progress tracking flag
+			boolean currentProgressFlag = calculateProgress;
+			// Disable progress tracking temporarily
+			calculateProgress = false;
 			// Reconstruct the image
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					oneBitImage.setRGB(x, y, rowList[y][x] == 1 ? getColorOne() : getColorZero());
-				}
-			}
+			setImageRGB(oneBitImage, getRowList(), getColorOne(), getColorZero());
+			// Reset progress tracking to previous value
+			calculateProgress = currentProgressFlag;
+
 			// Assign the newly constructed image
 			saveImage = oneBitImage;
 		}
