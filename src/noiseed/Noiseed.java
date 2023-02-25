@@ -642,6 +642,15 @@ public class Noiseed {
 	}
 
 	/**
+	 * Get the current {@code rowList}.
+	 * 
+	 * @return {@code rowList}
+	 */
+	public static byte[][] getRowList() {
+		return Noiseed.rowList;
+	}
+
+	/**
 	 * Get the current {@code img}.
 	 * 
 	 * @return {@code img}
