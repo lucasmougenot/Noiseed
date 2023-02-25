@@ -229,11 +229,11 @@ public class Noiseed {
 			// Reset progress to 0 (%)
 			setGenerationProgress(0, 100);
 			currentTotal = 0;
-			// Very rough estimates for progress display
+			// Very rough estimates for progress display, only count progress per row
 			// Circa ROWLIST_COST_WEIGHT % of compute time
-			rowListCost = (long) width * ((long) height - 1) * ROWLIST_COST_WEIGHT;
+			rowListCost = ((long) height - 1) * ROWLIST_COST_WEIGHT;
 			// Circa IMAGE_COST_WEIGHT % of compute time
-			imageCost = (long) width * (long) height * IMAGE_COST_WEIGHT;
+			imageCost = (long) height * IMAGE_COST_WEIGHT;
 			maxTotal = rowListCost + imageCost;
 		}
 
@@ -261,7 +261,7 @@ public class Noiseed {
 			}
 			// Keep track of "progress"
 			if (calculateProgress) {
-				currentTotal += width * IMAGE_COST_WEIGHT;
+				currentTotal += IMAGE_COST_WEIGHT;
 				setGenerationProgress(currentTotal, maxTotal);
 			}
 		}
@@ -352,7 +352,7 @@ public class Noiseed {
 			newRowList[y] = nextRow;
 			// Keep track of "progress"
 			if (calculateProgress) {
-				currentTotal += width * ROWLIST_COST_WEIGHT;
+				currentTotal += ROWLIST_COST_WEIGHT;
 				setGenerationProgress(currentTotal, maxTotal);
 			}
 		}
