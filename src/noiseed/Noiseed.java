@@ -24,6 +24,11 @@ import org.json.JSONObject;
 
 public class Noiseed {
 	
+	// Default image sizes
+	public static final int DEFAULT_WIDTH = 512;
+	public static final int DEFAULT_HEIGHT = 512;
+	// Default rule complexity
+	public static final int DEFAULT_N = 5;
 	// JSON keys
 	public static final String SEEDKEY = "seed";
 	public static final String RULEKEY = "rules";
@@ -42,12 +47,12 @@ public class Noiseed {
 	private static byte[][] rowlist;
 	// Width and height of the image that is to be generated
 	// Width and height both need to be > 0
-	private static int width = 512;
-	private static int height = 512;
+	private static int width = DEFAULT_WIDTH;
+	private static int height = DEFAULT_HEIGHT;
 	// Rule complexity (2^n rule entries)
 	// n >= 0 
 	// For example n = 0 = 2^0 = 1 = There is a single rule which is applied to all entries
-	private static int n = 5;
+	private static int n = DEFAULT_N;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
 	private static HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
 
