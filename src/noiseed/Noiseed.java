@@ -37,9 +37,6 @@ public class Noiseed {
 	// Percentage ratio estimates
 	public static final int ROWLIST_COST_WEIGHT  = 40;
 	public static final int IMAGE_COST_WEIGHT    = 60;
-
-	// Get an array of available formats
-	public static String[] availableFormats = ImageIO.getWriterFormatNames();
 	
 	// First row of the image containing 0s and 1s
 	private static byte[] seed;
@@ -61,6 +58,9 @@ public class Noiseed {
 	private static int colorZero = Color.BLACK.getRGB();
 	// Holds the generated image
 	private static BufferedImage img;
+
+	// Get an array of available formats
+	public static String[] availableFormats = ImageIO.getWriterFormatNames();
 
 	// Represents percentage (0 - 100)
 	private static int generationProgress = 0;
