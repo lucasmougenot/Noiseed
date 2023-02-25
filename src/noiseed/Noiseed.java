@@ -311,12 +311,15 @@ public class Noiseed {
 		// y ==> row-index (y-coordinate)
 		for (int y = 1; y < height; y++) {
 			byte[] nextRow = new byte[width];
-			// Set rulekey to 0 for each row
+			// Set ruleKey to 0 for each row
 			int ruleKey = 0;
 			// x ==> column-index (x-coordinate) of current row
 			for (int x = 0; x < width; x++) {
+				// IMPORTANT for n == 0, there is just 1 rule
+				// Therefore ruleKey does not need to be recalculated and always remains 0
+				if (n == 0) {}
 				// Calculate initial window once per loop
-				if (x == 0) {
+				else if (x == 0) {
 					// k ==> position of entry in [window] to calculate entry x
 					for (int k = 0; k < n; k++) {
 						// Example for n = 2
