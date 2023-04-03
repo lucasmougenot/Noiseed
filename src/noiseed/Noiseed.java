@@ -25,8 +25,8 @@ import org.json.JSONObject;
 public class Noiseed {
 
 	// Default image sizes
-	public static final int DEFAULT_WIDTH = 512;
-	public static final int DEFAULT_HEIGHT = 512;
+	public static final int DEFAULT_WIDTH = 1920;
+	public static final int DEFAULT_HEIGHT = 1080;
 	// Default rule complexity
 	public static final int DEFAULT_N = 5;
 	// JSON keys
