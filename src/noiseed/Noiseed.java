@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -73,8 +73,7 @@ public class Noiseed {
 	private static long rowListCost	= 0;
 	private static long imageCost	= 0;
 
-	// rng used for seed and rule generation
-	private static Random rand = new Random();
+	
 
 	// MAIN FUNCTION
 
@@ -266,7 +265,7 @@ public class Noiseed {
 	public static byte[] createSeed(int width) {
 		byte[] newSeed = new byte[width];
 		for (int i = 0; i < width; i++) {
-			newSeed[i] = (byte) rand.nextInt(2);
+			newSeed[i] = (byte) ThreadLocalRandom.current().nextInt(0, 2);
 		}
 		return newSeed;
 	}
@@ -280,7 +279,7 @@ public class Noiseed {
 	public static HashMap<Integer, Byte> createRules(int n) {
 		HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
 		for (int i = 0; i < (1 << n); i++) {
-			newRules.put(i, (byte) rand.nextInt(2));
+			newRules.put(i, (byte) ThreadLocalRandom.current().nextInt(0, 2));
 		}
 		return newRules;
 	}
