@@ -29,6 +29,13 @@ public class Noiseed {
 	public static final int DEFAULT_HEIGHT = 1080;
 	// Default rule complexity
 	public static final int DEFAULT_N = 5;
+	// Default colors
+	public static final int DEFAULT_COLOR_ZERO = Color.BLACK.getRGB();
+	public static final int DEFAULT_COLOR_ONE = Color.WHITE.getRGB();
+	// Default flags
+	public static final boolean DEFAULT_KEEP_CURRENT_SEED = false;
+	public static final boolean DEFAULT_KEEP_CURRENT_RULES = false;
+
 	// JSON keys
 	public static final String SEEDKEY = "seed";
 	public static final String RULEKEY = "rules";
@@ -39,41 +46,70 @@ public class Noiseed {
 	public static final int IMAGE_COST_WEIGHT	= 60;
 
 	// First row of the image containing 0s and 1s
-	private static byte[] seed;
+	private byte[] seed;
 	// 2-dimensional array representing the image containing 0s and 1s
-	private static byte[][] rowList;
+	private byte[][] rowList;
 	// Width and height of the image that is to be generated
 	// Width and height both need to be > 0
-	private static int width = DEFAULT_WIDTH;
-	private static int height = DEFAULT_HEIGHT;
+	private int width;
+	private int height;
 	// Rule complexity (2^n rule entries)
 	// n >= 0
 	// For example n = 0 = 2^0 = 1 = single rule which is applied to all entries
-	private static int n = DEFAULT_N;
+	private int n;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
-	private static HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
+	private HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
 
-	// Set up 2 colors to replace the values 1 (colorOne) and 0 (colorZero) in rowList
-	private static int colorOne = Color.WHITE.getRGB();
-	private static int colorZero = Color.BLACK.getRGB();
+	// The 2 colors to replace the values 0 (colorZero) and 1 (colorOne) in rowList
+	private int colorZero;
+	private int colorOne;
+
+	// Flags to retain current seed and/or rules
+	private boolean keepCurrentSeed;
+	private boolean keepCurrentRules;
+
 	// Holds the generated image
-	private static BufferedImage img;
+	private BufferedImage img;
 
 	// Get an array of available formats
 	public static String[] availableFormats = ImageIO.getWriterFormatNames();
 
 	// Represents percentage (0 - 100)
-	private static int generationProgress = 0;
+	private int generationProgress = 0;
 	// Used to estimate and calculate generationProgress
-	private static long currentTotal = 0;
-	private static long maxTotal	 = 0;
+	private long currentTotal = 0;
+	private long maxTotal	  = 0;
 	// Flag that can be set externally via enableCalculateProgress()
-	private static boolean calculateProgress = false;
+	private boolean calculateProgress = false;
 	// Initialize estimates for progress calculation
-	private static long rowListCost	= 0;
-	private static long imageCost	= 0;
+	private long rowListCost = 0;
+	private long imageCost   = 0;
 
-	
+	public Noiseed(int width, int height, int n, int colorZero, int colorOne, boolean keepCurrentSeed, boolean keepCurrentRules) {
+		setWidth(width);
+		setHeight(height);
+		setRuleComplexity(n);
+		setColorZero(colorZero);
+		setColorOne(colorOne);
+		setKeepCurrentSeed(keepCurrentSeed);
+		setKeepCurrentRules(keepCurrentRules);
+	}
+
+	public Noiseed(int width, int height, int n, int colorZero, int colorOne) {
+		this(width, height, n, colorZero, colorOne, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+	}
+
+	public Noiseed(int width, int height, int n) {
+		this(width, height, n, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+	}
+
+	public Noiseed(int width, int height) {
+		this(width, height, DEFAULT_N, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+	}
+
+	public Noiseed() {
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_N, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+	}
 
 	// MAIN FUNCTION
 
@@ -123,6 +159,9 @@ public class Noiseed {
 		// Default image format
 		String format = DEFAULT_IMAGE_FORMAT;
 
+		// Initialize default Noiseed object
+		Noiseed noiseed = new Noiseed();
+
 		// 1-5 args are valid, unsupplied args are replaced by default values
 		if (args.length > 0 && args.length <= MAX_ARGS) {
 			// Amount of images to be generated
@@ -134,15 +173,15 @@ public class Noiseed {
 			}
 			// Width of image
 			if (args.length > INDEX_WIDTH) {
-				width = Integer.parseInt(args[INDEX_WIDTH]);
+				noiseed.setWidth(Integer.parseInt(args[INDEX_WIDTH]));
 			}
 			// Height of image
 			if (args.length > INDEX_HEIGHT) {
-				height = Integer.parseInt(args[INDEX_HEIGHT]);
+				noiseed.setHeight(Integer.parseInt(args[INDEX_HEIGHT]));
 			}
 			// Rule complexity of rules (2^n rules)
 			if (args.length > INDEX_N) {
-				n = Integer.parseInt(args[INDEX_N]);
+				noiseed.setRuleComplexity(Integer.parseInt(args[INDEX_N]));
 			}
 			// Set format
 			if (args.length > INDEX_FORMAT) {
@@ -155,18 +194,18 @@ public class Noiseed {
 			if (args.length > INDEX_INFOFILE) {
 				String infoFileName = args[INDEX_INFOFILE];
 				// Sets seed and rules if present in JSON file
-				statusCodeInfoFile = setFromJSON(infoFileName, true, true);
+				statusCodeInfoFile = noiseed.setFromJSON(infoFileName, true, true);
 			}
 		}
 
 		// Generate images infinitely or according to amount
 		while (amountToBeGenerated > 0) {
 			// true for statusCode 1 or 3
-			boolean keepCurrentSeed = keepSeedFromStatusCode(statusCodeInfoFile);
+			noiseed.setKeepCurrentSeed(keepSeedFromStatusCode(statusCodeInfoFile));
 			// true for statusCode 2 or 3
-			boolean keepCurrentRules = keepRulesFromStatusCode(statusCodeInfoFile);
+			noiseed.setKeepCurrentRules(keepRulesFromStatusCode(statusCodeInfoFile));
 			// Generate the image
-			generateImage(width, height, n, keepCurrentSeed, keepCurrentRules);
+			noiseed.generateImage();
 
 			// Generate a fileName
 			String fileName = Helper.dateTimeToString();
@@ -193,13 +232,13 @@ public class Noiseed {
 				--retries;
 			}
 			// Save generated image
-			boolean imageSaved = saveImage(fileName, format);
+			boolean imageSaved = noiseed.saveImage(fileName, format);
 			if (!imageSaved) {
 				System.out.println("Could not save image file " + fullImageFileName);
 			}
 			// Save info file
 			String infoFileName = fileName + "_info";
-			boolean infoSaved = saveJSON(infoFileName, createInfoJSONObject());
+			boolean infoSaved = saveJSON(infoFileName, noiseed.createInfoJSONObject());
 			if (!infoSaved) {
 				System.out.println("Could not save info file " + infoFileName + ".json");
 			}
@@ -214,15 +253,8 @@ public class Noiseed {
 
 	/**
 	 * Generate image and set it to {@code img}.
-	 * 
-	 * @param width sets the width for the generated image
-	 * @param height sets the height for the generated image
-	 * @param n sets the number of rules (2^n)
-	 * @param keepCurrentSeed decide whether to keep the current {@code seed} or not
-	 * @param keepCurrentRules decide whether to keep the current {@code rules} or not 
-	 * 
 	 */
-	public static void generateImage(int width, int height, int n, boolean keepCurrentSeed, boolean keepCurrentRules) {
+	public void generateImage() {
 		// Check if progress tracking is desired
 		if (calculateProgress) {
 			// Reset progress to 0 (%)
@@ -238,31 +270,30 @@ public class Noiseed {
 
 		// Generate seed if needed
 		if (!keepCurrentSeed) {
-			seed = createSeed(width);
+			seed = createSeed();
 		}
 
 		// Generate rules if needed
 		if (!keepCurrentRules) {
-			rules = createRules(n);
+			rules = createRules();
 		}
 
 		// Generate 2-D array representing pixels
-		rowList = createRowList(seed, rules, width, height, n);
+		rowList = createRowList();
 
 		// Initialize new BufferedImage
-		setImg(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
+		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
 		// Set each pixel according to the associated rowList entry
-		setImageRGB(getImg(), getRowList(), getColorOne(), getColorZero());
+		setImageRGB();
 	}
 
 	/**
 	 * Generate a seed for image generation containing 0s and 1s.
 	 * 
-	 * @param width amount of entries to be generated
 	 * @return byte array of size width containing 0s and 1s
 	 */
-	public static byte[] createSeed(int width) {
+	public byte[] createSeed() {
 		byte[] newSeed = new byte[width];
 		for (int i = 0; i < width; i++) {
 			newSeed[i] = (byte) ThreadLocalRandom.current().nextInt(0, 2);
@@ -273,10 +304,9 @@ public class Noiseed {
 	/**
 	 * Generate a ruleset for image generation.
 	 * 
-	 * @param n rule complexity determining number of rules to be generated (2^n)
 	 * @return {@code Hashmap} with 2^n rules, each rule represented by a Key (1 to 2^n) and Value (1 or 0)
 	 */
-	public static HashMap<Integer, Byte> createRules(int n) {
+	public HashMap<Integer, Byte> createRules() {
 		HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
 		for (int i = 0; i < (1 << n); i++) {
 			newRules.put(i, (byte) ThreadLocalRandom.current().nextInt(0, 2));
@@ -287,14 +317,9 @@ public class Noiseed {
 	/**
 	 * Create a 2-D array for an image based on {@code seed} and {@code rules}, containing 0s and 1s.
 	 * 
-	 * @param seed sets the first row of the array
-	 * @param rules sets the rules
-	 * @param width sets the width of each generated row
-	 * @param height sets the number of rows to be generated
-	 * @param n determines the number of entries that are used from the previous row
 	 * @return 2-D array representing the image containing 0s and 1s as entries
 	 */
-	public static byte[][] createRowList(byte[] seed, HashMap<Integer, Byte> rules, int width, int height, int n) {
+	public byte[][] createRowList() {
 		byte[][] newRowList = new byte[height][width];
 		newRowList[0] = seed;
 		// y ==> row-index (y-coordinate)
@@ -350,13 +375,8 @@ public class Noiseed {
 
 	/**
 	 * Set colors in {@code img} based on {@code rowList}.
-	 * 
-	 * @param img the image which pixels will be colored
-	 * @param rowList 2-D array representing the image containing 0s and 1s as entries
-	 * @param colorOne the RGB value which fills pixels represented by a 1 in rowList
-	 * @param colorZero the RGB value which fills pixels represented by a 0 in rowList
 	 */
-	private static void setImageRGB(BufferedImage img, byte[][] rowList, int colorOne, int colorZero) {
+	private void setImageRGB() {
 		for (int y = 0; y < img.getHeight(); y++) {
 			for (int x = 0; x < img.getWidth(); x++) {
 				img.setRGB(x, y, rowList[y][x] == 1 ? colorOne : colorZero);
@@ -372,12 +392,10 @@ public class Noiseed {
 	/**
 	 * Change one color in {@code img} based on {@code rowList}.
 	 * 
-	 * @param img the image which will have one color changed
-	 * @param rowList 2-D array representing the image containing 0s and 1s as entries
 	 * @param newColor the new RGB value
 	 * @param changeColorOne determines the pixels which will have their RGB value changed
 	 */
-	public static void changeImageRGB(BufferedImage img, byte[][] rowList, int newColor, boolean changeColorOne) {
+	public void changeImageRGB(int newColor, boolean changeColorOne) {
 		// Control which color is changed
 		int colorToChange = changeColorOne ? 1 : 0;
 		// Loop through each rowList entry
@@ -399,28 +417,20 @@ public class Noiseed {
 	 * @param format desired format of the file
 	 * @return false if an error occurred
 	 */
-	public static boolean saveImage(String fileName, String format) {
+	public boolean saveImage(String fileName, String format) {
 		File f = new File(Helper.setFileName(fileName, format));
 		BufferedImage saveImage;
 		// wbmp is supposed to be always supported
 		if (format.equalsIgnoreCase("wbmp")) {
 			// Need imageType to be TYPE_BYTE_BINARY
-			BufferedImage oneBitImage = new BufferedImage(getImg().getWidth(), getImg().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
-
-			// Keep track of progress tracking flag
-			boolean currentProgressFlag = calculateProgress;
-			// Disable progress tracking temporarily
-			calculateProgress = false;
-			// Reconstruct the image
-			setImageRGB(oneBitImage, getRowList(), getColorOne(), getColorZero());
-			// Reset progress tracking to previous value
-			calculateProgress = currentProgressFlag;
+			BufferedImage oneBitImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+			// FIXME re-add save as wbmp
 
 			// Assign the newly constructed image
 			saveImage = oneBitImage;
 		} else {
 			// Assign the current image
-			saveImage = getImg();
+			saveImage = img;
 		}
 		try {
 			// Write saveImage to file f in format
@@ -460,7 +470,7 @@ public class Noiseed {
 	 * 
 	 * @return JSONObject containing the current {@code seed} and {@code rules}
 	 */
-	public static JSONObject createInfoJSONObject() {
+	public JSONObject createInfoJSONObject() {
 		return new JSONObject().put("seed", new JSONArray(seed)).put("rules", new JSONObject(rules));
 	}
 
@@ -482,7 +492,7 @@ public class Noiseed {
 	 * @param setRules enable setting of {@code rules} from the file
 	 * @return the appropriate status code
 	 */
-	public static int setFromJSON(String fileName, boolean setSeed, boolean setRules) {
+	public int setFromJSON(String fileName, boolean setSeed, boolean setRules) {
 		// Initialize return value
 		int statusCode = 0;
 
@@ -599,8 +609,8 @@ public class Noiseed {
 	 * 
 	 * @return {@code width}
 	 */
-	public static int getWidth() {
-		return Noiseed.width;
+	public int getWidth() {
+		return width;
 	}
 
 	/**
@@ -608,9 +618,9 @@ public class Noiseed {
 	 * 
 	 * @param newWidth the new value of {@code width}
 	 */
-	public static void setWidth(int newWidth) {
+	public void setWidth(int newWidth) {
 		if (newWidth > 0) {
-			Noiseed.width = newWidth;
+			width = newWidth;
 		}
 	}
 
@@ -619,8 +629,8 @@ public class Noiseed {
 	 * 
 	 * @return {@code height}
 	 */
-	public static int getHeight() {
-		return Noiseed.height;
+	public int getHeight() {
+		return height;
 	}
 
 	/**
@@ -628,9 +638,9 @@ public class Noiseed {
 	 * 
 	 * @param newHeight the new value of {@code height}
 	 */
-	public static void setHeight(int newHeight) {
+	public void setHeight(int newHeight) {
 		if (newHeight > 0) {
-			Noiseed.height = newHeight;
+			height = newHeight;
 		}
 	}
 
@@ -639,8 +649,8 @@ public class Noiseed {
 	 * 
 	 * @return {@code n}
 	 */
-	public static int getRuleComplexity() {
-		return Noiseed.n;
+	public int getRuleComplexity() {
+		return n;
 	}
 
 	/**
@@ -648,37 +658,65 @@ public class Noiseed {
 	 * 
 	 * @param newN the new value of {@code n}
 	 */
-	public static void setRuleComplexity(int newN) {
+	public void setRuleComplexity(int newN) {
 		if (newN >= 0) {
-			Noiseed.n = newN;
+			n = newN;
 		}
 	}
 
 	/**
-	 * Get the current {@code rowList}.
+	 * Get a copy of the current {@code seed}.
 	 * 
-	 * @return {@code rowList}
+	 * @return {@code seed}
 	 */
-	public static byte[][] getRowList() {
-		return Noiseed.rowList;
+	public byte[] getSeed() {
+		// Copy so that seed can not be modified by returned reference
+		byte[] copy = new byte[getSeedLength()];
+    	System.arraycopy(seed, 0, copy, 0, getSeedLength());
+		return copy;
 	}
 
 	/**
-	 * Get the current {@code img}.
+	 * Set {@code seed}.
+	 * 
+	 * @param newSeed the new {@code seed} 
+	 */
+	public void setSeed(byte[] newSeed) {
+		// Copy so that seed can not be modified by newSeed reference
+		seed = new byte[newSeed.length];
+    	System.arraycopy(newSeed, 0, seed, 0, newSeed.length);
+	}
+
+	/**
+	 * Get a copy of the current {@code rules}.
+	 * 
+	 * @return {@code rules}
+	 */
+	public HashMap<Integer, Byte> getRules() {
+		// Copy so that rules can not be modified by returned reference
+		HashMap<Integer, Byte> copy = new HashMap<Integer, Byte>(rules);
+		return copy;
+	}
+
+	/**
+	 * Set {@code rules}.
+	 * 
+	 * @param newRules the new {@code rules}
+	 */
+	public void setRules(HashMap<Integer, Byte> newRules) {
+		// Copy so that rules can not be modified by newRules reference
+		rules = new HashMap<Integer, Byte>(newRules);
+	}
+
+	/**
+	 * Get a copy of the current {@code img}.
 	 * 
 	 * @return {@code img}
 	 */
-	public static BufferedImage getImg() {
-		return Noiseed.img;
-	}
-
-	/**
-	 * Set {@code img}.
-	 * 
-	 * @param img the new BufferedImage
-	 */
-	public static void setImg(BufferedImage img) {
-		Noiseed.img = img;
+	public BufferedImage getImg() {
+		BufferedImage copy = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+		copy.setData(img.getData());
+		return copy;
 	}
 
 	/**
@@ -686,8 +724,8 @@ public class Noiseed {
 	 * 
 	 * @return value of progress
 	 */
-	public static int getGenerationProgress() {
-		return Noiseed.generationProgress;
+	public int getGenerationProgress() {
+		return generationProgress;
 	}
 
 	/**
@@ -696,14 +734,14 @@ public class Noiseed {
 	 * @param current sum of current estimated progress
 	 * @param max sum of all estimated operation costs
 	 */
-	public static void setGenerationProgress(long current, long max) {
+	public void setGenerationProgress(long current, long max) {
 		// Divide first and multiply after to lessen the wrap-around risk
 		// Get a value between 0.0 and 1.0
 		double progress = (double) current / (double) max;
 		// Get a value representing progress in % (0.0 to 100.0)
 		progress *= 100;
 		// clamp progress between 0 and 100
-		Noiseed.generationProgress = Helper.clamp((int) Math.floor(progress), 0, 100);
+		generationProgress = Helper.clamp((int) Math.floor(progress), 0, 100);
 	}
 
 	/**
@@ -711,8 +749,8 @@ public class Noiseed {
 	 * 
 	 * @return RGB color value that replaces 1s
 	 */
-	public static int getColorOne() {
-		return Noiseed.colorOne;
+	public int getColorOne() {
+		return colorOne;
 	}
 
 	/**
@@ -720,8 +758,8 @@ public class Noiseed {
 	 * 
 	 * @param newColorOne the new RGB color value to replace 1s
 	 */
-	public static void setColorOne(int newColorOne) {
-		Noiseed.colorOne = newColorOne;
+	public void setColorOne(int newColorOne) {
+		colorOne = newColorOne;
 	}
 
 	/**
@@ -729,8 +767,8 @@ public class Noiseed {
 	 * 
 	 * @return RGB color value that replaces 0s
 	 */
-	public static int getColorZero() {
-		return Noiseed.colorZero;
+	public int getColorZero() {
+		return colorZero;
 	}
 
 	/**
@@ -738,8 +776,44 @@ public class Noiseed {
 	 * 
 	 * @param newColorZero the new RGB color value to replace 0s
 	 */
-	public static void setColorZero(int newColorZero) {
-		Noiseed.colorZero = newColorZero;
+	public void setColorZero(int newColorZero) {
+		colorZero = newColorZero;
+	}
+
+	/**
+	 * Get {@code keepCurrentSeed}.
+	 * 
+	 * @return {@code keepCurrentSeed}
+	 */
+	public boolean getKeepCurrentSeed() {
+		return keepCurrentSeed;
+	}
+	
+	/**
+	 * Set {@code keepCurrentSeed}.
+	 * 
+	 * @param newKeepCurrentSeed the new value of determing keeping the current seed
+	 */
+	public void setKeepCurrentSeed(boolean newKeepCurrentSeed) {
+		keepCurrentSeed = newKeepCurrentSeed;
+	}
+
+	/**
+	 * Get {@code keepCurrentRules}.
+	 * 
+	 * @return {@code keepCurrentRules}
+	 */
+	public boolean getKeepCurrentRules() {
+		return keepCurrentRules;
+	}
+
+	/**
+	 * Set {@code keepCurrentSeed}.
+	 * 
+	 * @param newKeepCurrentRules the new value of determing keeping the current rules
+	 */
+	public void setKeepCurrentRules(boolean newKeepCurrentRules) {
+		keepCurrentRules = newKeepCurrentRules;
 	}
 
 	/**
@@ -747,8 +821,8 @@ public class Noiseed {
 	 * 
 	 * @param enable boolean flag determining activation of progress tracking
 	 */
-	public static void enableCalculateProgress(boolean enable) {
-		Noiseed.calculateProgress = enable;
+	public void enableCalculateProgress(boolean enable) {
+		calculateProgress = enable;
 	}
 
 	/**
@@ -756,8 +830,8 @@ public class Noiseed {
 	 * 
 	 * @return the width of the current {@code seed}
 	 */
-	public static int getSeedLength() {
-		return Noiseed.seed.length;
+	public int getSeedLength() {
+		return seed.length;
 	}
 
 	/**
@@ -765,7 +839,7 @@ public class Noiseed {
 	 * 
 	 * @return the value n where {@code rules.size() == 2^n}
 	 */
-	public static int getCurrentRulesN() {
-		return (int) (Math.log(Noiseed.rules.size()) / Math.log(2));
+	public int getCurrentRulesN() {
+		return (int) (Math.log(rules.size()) / Math.log(2));
 	}
 }
