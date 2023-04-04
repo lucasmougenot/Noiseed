@@ -493,8 +493,10 @@ public class GUI implements ActionListener, ChangeListener {
 		progressBar.setValue(100);
 		progressBar.setBorderPainted(false);
 		progressBar.setPreferredSize(new Dimension(1, 20));
-		// Add image
-		imgLabel = new JLabel(new ImageIcon(Noiseed.getImg()));
+		// Add image label
+		imgLabel = new JLabel();
+		// Set image to label
+		updateImage();
 		imagePanel.add(imgLabel);
 		
 		// Set up controlPanel
