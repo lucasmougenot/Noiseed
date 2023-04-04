@@ -58,7 +58,7 @@ public class GUI implements ActionListener, ChangeListener {
 	public static final int SIZE_SPINNER_MIN_VALUE 		= 1;
 	public static final int RULE_SPINNER_MIN_VALUE 		= 0;
 	// DEFAULT for rulespinner
-	public static final int RULE_SPINNER_DEFAULT_VALUE	= 5;
+	public static final int RULE_SPINNER_DEFAULT_VALUE	= Noiseed.DEFAULT_N;
 	public static final int SPINNER_STEP_VALUE 			= 1;
 	// Overkill, but why not
 	public static final int SPINNER_MAX_VALUE 			= Integer.MAX_VALUE;
