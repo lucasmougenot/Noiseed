@@ -90,6 +90,7 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	// Get int values from the preset strings
 	private final int[] presetValues 			= PRESETS.length > 0 ? presetsToIntArray(PRESETS) : presetsToIntArray(new String[]{DEFAULT_PRESET_SIZE});
+	private final Noiseed noiseed;
 	
 	private int screenWidth;
 	private int screenHeight;
@@ -161,7 +162,7 @@ public class GUI implements ActionListener, ChangeListener {
         @Override
         public Void doInBackground() {
 			// Start image generation
-            Noiseed.generateImage(Noiseed.getWidth(), Noiseed.getHeight(), Noiseed.getRuleComplexity(), keepSeedCheckBox.isSelected(), keepRulesCheckBox.isSelected());
+            noiseed.generateImage();
             return null;
         }
 
@@ -190,7 +191,7 @@ public class GUI implements ActionListener, ChangeListener {
 			progressBar.setValue(0);
 			// Periodically update progressBar
             while (!generator.isDone()) {
-            	progressBar.setValue(Noiseed.getGenerationProgress());
+            	progressBar.setValue(noiseed.getGenerationProgress());
             	try {
 					Thread.sleep(30);
 				} catch (InterruptedException e) {
@@ -289,7 +290,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setWidthSpinner(Noiseed.getWidth() + 1);
+			setWidthSpinner(noiseed.getWidth() + 1);
 		}
 	}
 	
@@ -300,7 +301,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setWidthSpinner(Noiseed.getWidth() - 1);			
+			setWidthSpinner(noiseed.getWidth() - 1);			
 		}
 	}
 	
@@ -311,7 +312,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setHeightSpinner(Noiseed.getHeight() + 1);			
+			setHeightSpinner(noiseed.getHeight() + 1);			
 		}
 	}
 	
@@ -322,7 +323,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setHeightSpinner(Noiseed.getHeight() - 1);			
+			setHeightSpinner(noiseed.getHeight() - 1);			
 		}		
 	}
 	
@@ -333,7 +334,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setRuleSpinner(Noiseed.getRuleComplexity() + 1);			
+			setRuleSpinner(noiseed.getRuleComplexity() + 1);			
 		}		
 	}
 	
@@ -344,7 +345,7 @@ public class GUI implements ActionListener, ChangeListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
-			setRuleSpinner(Noiseed.getRuleComplexity() - 1);			
+			setRuleSpinner(noiseed.getRuleComplexity() - 1);			
 		}		
 	}
 
@@ -356,8 +357,6 @@ public class GUI implements ActionListener, ChangeListener {
 	 * @param args UNUSED
 	 */
 	public static void main(String[] args) {
-		// Enable progress tracking for the progress bar
-		Noiseed.enableCalculateProgress(true);
 		// Start GUI
         EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -369,6 +368,10 @@ public class GUI implements ActionListener, ChangeListener {
 	// GUI CONSTRUCTOR
 
 	public GUI() {
+		// Initialize Noiseed object
+		noiseed = new Noiseed();
+		// Enable progress tracking for the progress bar
+		noiseed.enableCalculateProgress(true);
 				
 		// Add ActionListeners
 		generateButton.addActionListener(this);
@@ -484,10 +487,8 @@ public class GUI implements ActionListener, ChangeListener {
 		// Needs to happen after widthSpinner and heightSpinner have their listeners added
 		// This also sets the width and height in Noiseed
 		presetComboBox.setSelectedIndex(DEFAULT_PRESET_IDX);
-		// Set n in Noiseed to current ruleComplexitySpinner value (RULE_SPINNER_DEFAULT_VALUE)
-		Noiseed.setRuleComplexity((Integer)ruleComplexitySpinner.getValue());
 		// Generate image on start-up after width, height, n are set
-		Noiseed.generateImage(Noiseed.getWidth(), Noiseed.getHeight(), Noiseed.getRuleComplexity(), keepSeedCheckBox.isSelected(), keepRulesCheckBox.isSelected());
+		noiseed.generateImage();
 		
 		// Set up progress bar
 		progressBar.setValue(100);
@@ -554,10 +555,10 @@ public class GUI implements ActionListener, ChangeListener {
 	// MAIN FUNCTIONALITY
 	
 	/**
-	 * Set the image in {@code imgLabel} according to {@code Noiseed.img}.
+	 * Set the image in {@code imgLabel} according to {@code noiseed.img}.
 	 */
 	private void updateImage() {
-		imgLabel.setIcon(new ImageIcon(Noiseed.getImg()));
+		imgLabel.setIcon(new ImageIcon(noiseed.getImg()));
 	}
 
 	/**
@@ -650,10 +651,12 @@ public class GUI implements ActionListener, ChangeListener {
 			colorButtonHandler(false);
 		// Keep seed checkbox
 		} else if (e.getSource() == keepSeedCheckBox) {
-			setWidthSpinner(Noiseed.getSeedLength());
+			noiseed.setKeepCurrentSeed(keepSeedCheckBox.isSelected());
+			setWidthSpinner(noiseed.getSeedLength());
 		// Keep rules checkbox
 		} else if (e.getSource() == keepRulesCheckBox) {
-			setRuleSpinner(Noiseed.getCurrentRulesN());
+			noiseed.setKeepCurrentRules(keepRulesCheckBox.isSelected());
+			setRuleSpinner(noiseed.getCurrentRulesN());
 		}
 	}
 
@@ -664,19 +667,21 @@ public class GUI implements ActionListener, ChangeListener {
 	public void stateChanged(ChangeEvent e) {
 		// Width spinner
 		if (e.getSource() == widthSpinner) {
-			Noiseed.setWidth((Integer)widthSpinner.getValue());
+			noiseed.setWidth((Integer)widthSpinner.getValue());
 			// new width => new seed
-			if (keepSeedCheckBox.isSelected() && (Noiseed.getWidth() != Noiseed.getSeedLength())) {
+			if (keepSeedCheckBox.isSelected() && (noiseed.getWidth() != noiseed.getSeedLength())) {
+				noiseed.setKeepCurrentSeed(false);
 				keepSeedCheckBox.setSelected(false);
 			}
 		// Height spinner
 		} else if (e.getSource() == heightSpinner) {
-			Noiseed.setHeight((Integer)heightSpinner.getValue());
+			noiseed.setHeight((Integer)heightSpinner.getValue());
 		// Rule complexity spinner
 		} else if (e.getSource() == ruleComplexitySpinner) {
-			Noiseed.setRuleComplexity((Integer)ruleComplexitySpinner.getValue());
+			noiseed.setRuleComplexity((Integer)ruleComplexitySpinner.getValue());
 			// new n => new rules
-			if (keepRulesCheckBox.isSelected() && (Noiseed.getRuleComplexity() != Noiseed.getCurrentRulesN())) {
+			if (keepRulesCheckBox.isSelected() && (noiseed.getRuleComplexity() != noiseed.getCurrentRulesN())) {
+				noiseed.setKeepCurrentRules(false);
 				keepRulesCheckBox.setSelected(false);
 			}
 		}
@@ -728,10 +733,10 @@ public class GUI implements ActionListener, ChangeListener {
 				// Check if a writer for the specified format exists
 				if (Arrays.stream(Noiseed.availableFormats).anyMatch(format::equalsIgnoreCase)) {
 					// Save image to file
-					boolean success = Noiseed.saveImage(fileName, format);
+					boolean success = noiseed.saveImage(fileName, format);
 					if (success) {
 						// Save image info to file
-						Noiseed.saveJSON(fileName + "_info", Noiseed.createInfoJSONObject());
+						Noiseed.saveJSON(fileName + "_info", noiseed.createInfoJSONObject());
 					} else {
 						JOptionPane.showMessageDialog(frame, "Image could not be saved.\nAppropriate writer for format ." + format + " not found.", "Writer not found", JOptionPane.ERROR_MESSAGE);
 					}
@@ -759,15 +764,17 @@ public class GUI implements ActionListener, ChangeListener {
 			int splitOn = filepath.lastIndexOf(".json");
 			if (splitOn != -1) {
 				// Set seed and rules from file
-				int statusCode = Noiseed.setFromJSON(filepath, true, true);
+				int statusCode = noiseed.setFromJSON(filepath, true, true);
 				if (statusCode == 0) {
 					JOptionPane.showMessageDialog(frame, "Values could not be loaded from " + filepath + ".", "Load error", JOptionPane.ERROR_MESSAGE);
 				} else {
 					// width and n may have changed
-					setWidthSpinner(Noiseed.getWidth());
-					setRuleSpinner(Noiseed.getRuleComplexity());
+					setWidthSpinner(noiseed.getWidth());
+					setRuleSpinner(noiseed.getRuleComplexity());
 					// Set checkboxes only if the corresponding value was loaded
+					noiseed.setKeepCurrentSeed(Noiseed.keepSeedFromStatusCode(statusCode));
 					keepSeedCheckBox.setSelected(Noiseed.keepSeedFromStatusCode(statusCode));
+					noiseed.setKeepCurrentRules(Noiseed.keepRulesFromStatusCode(statusCode));
 					keepRulesCheckBox.setSelected(Noiseed.keepRulesFromStatusCode(statusCode));
 					// Generate image from given info
 					generateButton.doClick();
@@ -788,18 +795,18 @@ public class GUI implements ActionListener, ChangeListener {
 		// Toggle on waiting
 		toggleWaiting(true, currentColorButton);
 		String activeColorString = isColorA ? "Color A" : "Color B";
-		int currentColor = isColorA ? Noiseed.getColorOne() : Noiseed.getColorZero();
+		int currentColor = isColorA ? noiseed.getColorOne() : noiseed.getColorZero();
 		// Show color picker dialog
 		Color newColor = JColorChooser.showDialog(frame, activeColorString, new Color(currentColor));
 		if (newColor != null && newColor.getRGB() != currentColor) {
 			// Set the new RGB value
 			if (isColorA) {
-				Noiseed.setColorOne(newColor.getRGB());
+				noiseed.setColorOne(newColor.getRGB());
 			} else {
-				Noiseed.setColorZero(newColor.getRGB());
+				noiseed.setColorZero(newColor.getRGB());
 			}
-			// Change img color in Noiseed
-			Noiseed.changeImageRGB(Noiseed.getImg(), Noiseed.getRowList(), newColor.getRGB(), isColorA);
+			// Change img color in noiseed
+			noiseed.changeImageRGB(newColor.getRGB(), isColorA);
 			// Reflect changes in GUI
 			updateImage();
 		}
