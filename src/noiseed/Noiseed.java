@@ -1,6 +1,7 @@
 package noiseed;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import java.io.File;
@@ -424,8 +425,12 @@ public class Noiseed {
 		if (format.equalsIgnoreCase("wbmp")) {
 			// Need imageType to be TYPE_BYTE_BINARY
 			BufferedImage oneBitImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
-			// FIXME re-add save as wbmp
-
+			// Draw into oneBitImage via Graphics2D object
+			Graphics2D oneBitG2D = oneBitImage.createGraphics();
+			// Redraw img in oneBitImage
+			oneBitG2D.drawImage(img, 0, 0, null);
+			// ...preferable to manually free the associated resources by calling this method...
+			oneBitG2D.dispose();
 			// Assign the newly constructed image
 			saveImage = oneBitImage;
 		} else {
