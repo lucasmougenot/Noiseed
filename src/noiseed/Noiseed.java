@@ -46,10 +46,6 @@ public class Noiseed {
 	public static final int ROWLIST_COST_WEIGHT	= 40;
 	public static final int IMAGE_COST_WEIGHT	= 60;
 
-	// First row of the image containing 0s and 1s
-	private byte[] seed;
-	// 2-dimensional array representing the image containing 0s and 1s
-	private byte[][] rowList;
 	// Width and height of the image that is to be generated
 	// Width and height both need to be > 0
 	private int width;
@@ -58,8 +54,6 @@ public class Noiseed {
 	// n >= 0
 	// For example n = 0 = 2^0 = 1 = single rule which is applied to all entries
 	private int n;
-	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
-	private HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
 
 	// The 2 colors to replace the values 0 (colorZero) and 1 (colorOne) in rowList
 	private int colorZero;
@@ -68,6 +62,14 @@ public class Noiseed {
 	// Flags to retain current seed and/or rules
 	private boolean keepCurrentSeed;
 	private boolean keepCurrentRules;
+
+	// First row of the image containing 0s and 1s
+	private byte[] seed;
+	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
+	private HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
+
+	// 2-dimensional array representing the image containing 0s and 1s
+	private byte[][] rowList;
 
 	// Holds the generated image
 	private BufferedImage img;
