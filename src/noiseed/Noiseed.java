@@ -701,8 +701,7 @@ public class Noiseed {
 	 */
 	public HashMap<Integer, Byte> getRules() {
 		// Copy so that rules can not be modified by returned reference
-		HashMap<Integer, Byte> copy = new HashMap<Integer, Byte>(rules);
-		return copy;
+		return new HashMap<Integer, Byte>(rules);
 	}
 
 	/**
