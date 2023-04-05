@@ -474,8 +474,8 @@ public class GUI implements ActionListener, ChangeListener {
 		presetLabel.setForeground(Color.WHITE);
 		
 		// Set up saveAsFileChooser
-		String saveDescription = Helper.getFileFormatFilterDescription("Images", Noiseed.availableFormats);
-		FileFilter saveFilter = new FileNameExtensionFilter(saveDescription, Noiseed.availableFormats);
+		String saveDescription = Helper.getFileFormatFilterDescription("Images", Noiseed.getAvailableFormats());
+		FileFilter saveFilter = new FileNameExtensionFilter(saveDescription, Noiseed.getAvailableFormats());
 		saveAsFileChooser.removeChoosableFileFilter(saveAsFileChooser.getAcceptAllFileFilter());
 		saveAsFileChooser.setFileFilter(saveFilter);
 		
@@ -715,10 +715,10 @@ public class GUI implements ActionListener, ChangeListener {
 		toggleWaiting(true, saveButton);
 		// Set a default format
 		String defaultFormat;
-		if (Arrays.stream(Noiseed.availableFormats).anyMatch(Noiseed.DEFAULT_IMAGE_FORMAT::equalsIgnoreCase)) {
+		if (Arrays.stream(Noiseed.getAvailableFormats()).anyMatch(Noiseed.DEFAULT_IMAGE_FORMAT::equalsIgnoreCase)) {
 			defaultFormat = Noiseed.DEFAULT_IMAGE_FORMAT;
 		} else {
-			defaultFormat = Noiseed.availableFormats[0].toLowerCase();
+			defaultFormat = Noiseed.getAvailableFormats()[0].toLowerCase();
 		}
 		// Set a default file name
 		saveAsFileChooser.setSelectedFile(new File(Helper.dateTimeToString() + "." + defaultFormat));
@@ -731,7 +731,7 @@ public class GUI implements ActionListener, ChangeListener {
 				String fileName = filepath.substring(0, splitOn);
 				String format = filepath.substring(splitOn + 1);
 				// Check if a writer for the specified format exists
-				if (Arrays.stream(Noiseed.availableFormats).anyMatch(format::equalsIgnoreCase)) {
+				if (Arrays.stream(Noiseed.getAvailableFormats()).anyMatch(format::equalsIgnoreCase)) {
 					// Save image to file
 					boolean success = noiseed.saveImage(fileName, format);
 					if (success) {

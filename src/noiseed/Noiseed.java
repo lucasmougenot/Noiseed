@@ -46,6 +46,9 @@ public class Noiseed {
 	public static final int ROWLIST_COST_WEIGHT	= 40;
 	public static final int IMAGE_COST_WEIGHT	= 60;
 
+	// Array of available image writer formats
+	private static final String[] AVAILABLE_FORMATS = ImageIO.getWriterFormatNames();
+
 	// Width and height of the image that is to be generated
 	// Width and height both need to be > 0
 	private int width;
@@ -73,9 +76,6 @@ public class Noiseed {
 
 	// Holds the generated image
 	private BufferedImage img;
-
-	// Get an array of available formats
-	public static String[] availableFormats = ImageIO.getWriterFormatNames();
 
 	// Represents percentage (0 - 100)
 	private int generationProgress = 0;
@@ -189,7 +189,7 @@ public class Noiseed {
 			// Set format
 			if (args.length > INDEX_FORMAT) {
 				// Check if entered format is available
-				if (Arrays.stream(Noiseed.availableFormats).anyMatch(format::equalsIgnoreCase)) {
+				if (Arrays.stream(Noiseed.AVAILABLE_FORMATS).anyMatch(format::equalsIgnoreCase)) {
 					format = args[INDEX_FORMAT];
 				}
 			}
@@ -848,5 +848,14 @@ public class Noiseed {
 	 */
 	public int getCurrentRulesN() {
 		return (int) (Math.log(rules.size()) / Math.log(2));
+	}
+
+	/**
+	 * Get a copy of {@code AVAILABLE_FORMATS}.
+	 * 
+	 * @return available image writer formats
+	 */
+	public static final String[] getAvailableFormats() {
+		return AVAILABLE_FORMATS.clone();
 	}
 }
