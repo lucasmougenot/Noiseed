@@ -678,9 +678,7 @@ public class Noiseed {
 	 */
 	public byte[] getSeed() {
 		// Copy so that seed can not be modified by returned reference
-		byte[] copy = new byte[getSeedLength()];
-    	System.arraycopy(seed, 0, copy, 0, getSeedLength());
-		return copy;
+		return seed.clone();
 	}
 
 	/**
@@ -690,8 +688,7 @@ public class Noiseed {
 	 */
 	public void setSeed(byte[] newSeed) {
 		// Copy so that seed can not be modified by newSeed reference
-		seed = new byte[newSeed.length];
-    	System.arraycopy(newSeed, 0, seed, 0, newSeed.length);
+		seed = newSeed.clone();
 	}
 
 	/**
