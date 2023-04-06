@@ -360,34 +360,16 @@ public class Noiseed {
 			for (int x = 0; x < width; x++) {
 				// IMPORTANT for n == 0, there is just 1 rule
 				// Therefore ruleKey does not need to be recalculated and always remains 0
-				if (n == 0) {}
-				// Calculate initial window once per loop
-				else if (x == 0) {
-					// k ==> position of entry in [window] to calculate entry x
-					for (int k = 0; k < n; k++) {
-						// Example for n = 2
-						// (row y-1) ... | ... | ... [ MSB | LSB ] ... | ...
-						// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
-						// Example for n = 3
-						// (row y-1) ... | ... [ MSB | BIT | LSB ] ... | ...
-						// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
-						if (newRowList[y - 1][Math.floorMod((n / 2) - k, width)] == 1) {
-							ruleKey += 1 << k;
-						}
+				if (n != 0) {
+					// Calculate initial window once per loop
+					if (x == 0) {
+						ruleKey = computeInitialWindow(newRowList, y, ruleKey);
+					// Shift window to the right for next entries
+					// Cut off MSB, left shift and set LSB correctly
+					} else {
+						ruleKey = computeWindowSlide(newRowList, y, x, ruleKey);
 					}
-				// Shift window to the right for next entries
-				// Cut off MSB, left shift and set LSB correctly
-				} else {
-					// Set MSB to 0 by bitwise AND with 01111...
-					ruleKey &= ~(1 << (n - 1));
-					// Shift left by 1
-					ruleKey <<= 1;
-					// Check rightmost entry of window
-					if (newRowList[y - 1][Math.floorMod((n / 2) + x, width)] == 1) {
-						// Set LSB to 1 by bitwise OR with ...00001
-						ruleKey |= 1;
-					}
-				}
+				}	
 				// Set the entry x according to calculated ruleKey
 				nextRow[x] = rules.get(ruleKey);
 			}
@@ -400,6 +382,83 @@ public class Noiseed {
 			}
 		}
 		return newRowList;
+	}
+
+	/**
+	 * Compute the value representing the window at the beginning of the current "row".
+	 * 
+	 * @param newRowList 2-D array that is currently being built
+	 * @param y the current y coordinate
+	 * @param ruleKey the current ruleKey value
+	 * @return integer representation of the window to be used as the new ruleKey
+	 */
+	private int computeInitialWindow(byte[][] newRowList, int y, int ruleKey) {
+		// k ==> position of entry in [window] to calculate entry x
+		for (int k = 0; k < n; k++) {
+			// Example for n = 2
+			// (row y-1) ... | ... | ... [ MSB | LSB ] ... | ...
+			// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
+			// Example for n = 3
+			// (row y-1) ... | ... [ MSB | BIT | LSB ] ... | ...
+			// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
+			int xWindowIndex;
+			// WRAP
+			if (edgeBehavior == EdgeBehavior.WRAP) {
+				xWindowIndex = Math.floorMod((n / 2) - k, width);
+			// CUT
+			} else if (edgeBehavior == EdgeBehavior.CUT) {
+				xWindowIndex = (n / 2) - k;
+				// All releveant entries have been calculated
+				if (xWindowIndex < 0) {
+					return ruleKey;
+				// Ignore indices "outside" of the array
+				} else if (xWindowIndex >= width) {
+					continue;
+				}
+			// edgeBehavior contains illegal value
+			} else {
+				throw new IllegalStateException("Field edgeBehavior is not initialized correctly");
+			}
+			// Add 2^k to ruleKey if entry is 1
+			if (newRowList[y - 1][xWindowIndex] == 1) {
+				ruleKey += 1 << k;
+			}
+		}
+		return ruleKey;
+	}
+
+	/**
+	 * Compute the value representing the window after a "right slide" by 1 position.
+	 * 
+	 * @param newRowList 2-D array that is currently being built
+	 * @param y the current y coordinate
+	 * @param x the current x coordinate
+	 * @param ruleKey the current ruleKey value
+	 * @return integer representation of the window to be used as the new ruleKey
+	 */
+	private int computeWindowSlide(byte[][] newRowList, int y, int x, int ruleKey) {
+		// Set MSB to 0 by bitwise AND with 01111...
+		ruleKey &= ~(1 << (n - 1));
+		// Shift left by 1
+		ruleKey <<= 1;
+		int xWindowIndex;
+		// Calculate x-coordinate index
+		// WRAP
+		if (edgeBehavior == EdgeBehavior.WRAP) {
+			xWindowIndex = Math.floorMod((n / 2) + x, width);
+		// CUT
+		} else {
+			xWindowIndex = (n / 2) + x;
+			if (xWindowIndex >= width) {
+				return ruleKey;
+			}
+		}
+		// Check rightmost entry of window
+		if ((n / 2) + x < width && newRowList[y - 1][xWindowIndex] == 1) {
+			// Set LSB to 1 by bitwise OR with ...00001
+			ruleKey |= 1;
+		}
+		return ruleKey;
 	}
 
 	/**
