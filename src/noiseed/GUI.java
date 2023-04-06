@@ -116,7 +116,7 @@ public class GUI implements ActionListener, ChangeListener {
 	private JButton colorButtonB 				= new JButton("Color B");
 	private JCheckBox keepSeedCheckBox 			= new JCheckBox("Keep seed", false);
 	private JCheckBox keepRulesCheckBox 		= new JCheckBox("Keep rules", false);	
-	private JComboBox<String> presetComboBox 	= new JComboBox<String>(PRESETS);
+	private JComboBox<String> presetComboBox 	= new JComboBox<>(PRESETS);
 	private JSpinner widthSpinner 				= new JSpinner(new SpinnerNumberModel(	SIZE_SPINNER_MIN_VALUE, 	// Initial value
 																						SIZE_SPINNER_MIN_VALUE,		// Minimum value
 																						SPINNER_MAX_VALUE, 			// Maximum value

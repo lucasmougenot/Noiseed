@@ -89,7 +89,7 @@ public class Noiseed {
 	// First row of the image containing 0s and 1s
 	private byte[] seed;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
-	private Map<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
+	private Map<Integer, Byte> rules = new HashMap<>(1 << n);
 
 	// 2-dimensional array representing the image containing 0s and 1s
 	private byte[][] rowList;
@@ -355,7 +355,7 @@ public class Noiseed {
 	 * @return {@code Hashmap} with 2^n rules, each rule represented by a Key (1 to 2^n) and Value (1 or 0)
 	 */
 	public Map<Integer, Byte> createRules() {
-		Map<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
+		Map<Integer, Byte> newRules = new HashMap<>(1 << n);
 		for (int i = 0; i < (1 << n); i++) {
 			newRules.put(i, (byte) ThreadLocalRandom.current().nextInt(0, 2));
 		}
@@ -686,7 +686,7 @@ public class Noiseed {
 		int ceil = (int) (Math.ceil(Math.log(len) / Math.log(2)));
 		int floor = (int) (Math.floor(Math.log(len) / Math.log(2)));
 		if (len > 0 && floor == ceil) {
-			HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(len);
+			HashMap<Integer, Byte> newRules = new HashMap<>(len);
 			// Iterate over keys
 			for (Integer i = 0; i < len; i++) {
 				// Check that key exists and is not null
@@ -822,7 +822,7 @@ public class Noiseed {
 	 */
 	public Map<Integer, Byte> getRules() {
 		// Copy so that rules can not be modified by returned reference
-		return new HashMap<Integer, Byte>(rules);
+		return new HashMap<>(rules);
 	}
 
 	/**
@@ -832,7 +832,7 @@ public class Noiseed {
 	 */
 	public void setRules(Map<Integer, Byte> newRules) {
 		// Copy so that rules can not be modified by newRules reference
-		rules = new HashMap<Integer, Byte>(newRules);
+		rules = new HashMap<>(newRules);
 	}
 
 	/**
