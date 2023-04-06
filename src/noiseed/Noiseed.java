@@ -476,7 +476,7 @@ public class Noiseed {
 	 * @return JSONObject containing the current {@code seed} and {@code rules}
 	 */
 	public JSONObject createInfoJSONObject() {
-		return new JSONObject().put("seed", new JSONArray(seed)).put("rules", new JSONObject(rules));
+		return new JSONObject().put(SEEDKEY, new JSONArray(seed)).put(RULEKEY, new JSONObject(rules));
 	}
 
 	/**
