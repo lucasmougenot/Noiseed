@@ -476,7 +476,7 @@ public class GUI implements ActionListener, ChangeListener {
 		saveAsFileChooser.setFileFilter(saveFilter);
 		
 		// Set up loadFromFileChooser
-		FileFilter loadFilter = new FileNameExtensionFilter("JSON (*.json)",  new String[]{"json"});
+		FileFilter loadFilter = new FileNameExtensionFilter("JSON (*.json)",  "json");
 		loadFromFileChooser.removeChoosableFileFilter(loadFromFileChooser.getAcceptAllFileFilter());
 		loadFromFileChooser.setFileFilter(loadFilter);
 				
