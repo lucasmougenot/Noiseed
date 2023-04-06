@@ -841,6 +841,9 @@ public class Noiseed {
 	 * @return the value n where {@code rules.size() == 2^n}
 	 */
 	public int getCurrentRulesN() {
+		if (rules.size() < 1) {
+			return -1;
+		}
 		return (int) (Math.log(rules.size()) / Math.log(2));
 	}
 
