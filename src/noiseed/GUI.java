@@ -68,7 +68,7 @@ public class GUI implements ActionListener, ChangeListener {
 	// DEFAULT preset
 	// TODO load custom presets
 	public static final String DEFAULT_PRESET_SIZE		= 	"1920x1080";	
-	public static final String[] PRESETS				= {	"16x16", 
+	private static final String[] PRESETS				= {	"16x16", 
 															"32x32", 
 															"48x48", 
 															"64x64", 
