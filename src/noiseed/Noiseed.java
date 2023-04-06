@@ -832,6 +832,9 @@ public class Noiseed {
 	 * @return the width of the current {@code seed}
 	 */
 	public int getSeedLength() {
+		if (seed == null) {
+			return 0;
+		}
 		return seed.length;
 	}
 
