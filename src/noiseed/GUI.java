@@ -131,7 +131,7 @@ public class GUI implements ActionListener, ChangeListener {
 																						SPINNER_STEP_VALUE)); 		// Step
 	private String currentDir = new File("").getAbsolutePath();
 	private JFileChooser saveAsFileChooser = new JFileChooser(currentDir);
-	private JFileChooser loadFromFileChooser = new JFileChooser(currentDir);;
+	private JFileChooser loadFromFileChooser = new JFileChooser(currentDir);
 	
 	private ImageGenerator generator;
 	
