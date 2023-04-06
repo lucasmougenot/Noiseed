@@ -473,7 +473,7 @@ public class Noiseed {
 			}
 		}
 		// Check rightmost entry of window
-		if ((n / 2) + x < width && newRowList[y - 1][xWindowIndex] == 1) {
+		if (newRowList[y - 1][xWindowIndex] == 1) {
 			// Set LSB to 1 by bitwise OR with ...00001
 			ruleKey |= 1;
 		}
