@@ -357,11 +357,7 @@ public class GUI implements ActionListener, ChangeListener {
 	 */
 	public static void main(String[] args) {
 		// Start GUI
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-            	new GUI();
-            }
-        });
+        EventQueue.invokeLater(GUI::new);
 	}
 
 	// GUI CONSTRUCTOR
