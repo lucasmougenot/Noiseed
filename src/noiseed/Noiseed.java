@@ -84,9 +84,6 @@ public class Noiseed {
 	private long maxTotal	  = 0;
 	// Flag that can be set externally via enableCalculateProgress()
 	private boolean calculateProgress = false;
-	// Initialize estimates for progress calculation
-	private long rowListCost = 0;
-	private long imageCost   = 0;
 
 	public Noiseed(int width, int height, int n, int colorZero, int colorOne, boolean keepCurrentSeed, boolean keepCurrentRules) {
 		setWidth(width);
@@ -255,6 +252,10 @@ public class Noiseed {
 	 * Generate image and set it to {@code img}.
 	 */
 	public void generateImage() {
+
+		// Initialize estimates for progress calculation
+		long rowListCost = 0;
+		long imageCost   = 0;
 		// Check if progress tracking is desired
 		if (calculateProgress) {
 			// Reset progress to 0 (%)
