@@ -85,30 +85,38 @@ public class Noiseed {
 	// Flag that can be set externally via enableCalculateProgress()
 	private boolean calculateProgress = false;
 
-	public Noiseed(int width, int height, int n, int colorZero, int colorOne, boolean keepCurrentSeed, boolean keepCurrentRules) {
+	/**
+	 * Constructor setting image dimensions and rule complexity.
+	 * 
+	 * @param width image width
+	 * @param height image height
+	 * @param n complexity of generated rules
+	 */
+	public Noiseed(int width, int height, int n) {
 		setWidth(width);
 		setHeight(height);
 		setRuleComplexity(n);
-		setColorZero(colorZero);
-		setColorOne(colorOne);
-		setKeepCurrentSeed(keepCurrentSeed);
-		setKeepCurrentRules(keepCurrentRules);
+		setColorZero(DEFAULT_COLOR_ZERO);
+		setColorOne(DEFAULT_COLOR_ONE);
+		setKeepCurrentSeed(DEFAULT_KEEP_CURRENT_SEED);
+		setKeepCurrentRules(DEFAULT_KEEP_CURRENT_RULES);
 	}
 
-	public Noiseed(int width, int height, int n, int colorZero, int colorOne) {
-		this(width, height, n, colorZero, colorOne, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
-	}
-
-	public Noiseed(int width, int height, int n) {
-		this(width, height, n, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
-	}
-
+	/**
+	 * Constructor for setting image dimensions.
+	 * 
+	 * @param width image width
+	 * @param height image height
+	 */
 	public Noiseed(int width, int height) {
-		this(width, height, DEFAULT_N, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+		this(width, height, DEFAULT_N);
 	}
 
+	/**
+	 * Default constructor chaining into an object with default values.
+	 */
 	public Noiseed() {
-		this(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_N, DEFAULT_COLOR_ZERO, DEFAULT_COLOR_ONE, DEFAULT_KEEP_CURRENT_SEED, DEFAULT_KEEP_CURRENT_RULES);
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 
 	// MAIN FUNCTION
