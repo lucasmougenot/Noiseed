@@ -270,12 +270,12 @@ public class Noiseed {
 		}
 
 		// Generate seed if needed
-		if (!keepCurrentSeed) {
+		if ((seed == null) || !keepCurrentSeed) {
 			seed = createSeed();
 		}
 
 		// Generate rules if needed
-		if (!keepCurrentRules) {
+		if ((rules.size() < 1) || !keepCurrentRules) {
 			rules = createRules();
 		}
 
