@@ -518,7 +518,24 @@ public class Noiseed {
 
 		// If setSeed, check that SEEDKEY exists in the file and associated content is not null
 		if (setSeed && contentJSON.has(SEEDKEY) && !contentJSON.isNull(SEEDKEY)) {
-			JSONArray seedJSON = contentJSON.getJSONArray(SEEDKEY);
+			statusCode += setSeedFromJSON(contentJSON);
+		}
+
+		// If setRules check if RULEKEY exists and content is not null
+		if (setRules && contentJSON.has(RULEKEY) && !contentJSON.isNull(RULEKEY)) {
+			statusCode += setRulesFromJSON(contentJSON);
+		}
+		return statusCode;
+	}
+
+	/**
+	 * Set the {@code seed} from a JSONObject.
+	 * 
+	 * @param json JSONObject containing seed information
+	 * @return 1 if the seed was set, else 0
+	 */
+	private int setSeedFromJSON(JSONObject json) {
+		JSONArray seedJSON = json.getJSONArray(SEEDKEY);
 			int len = seedJSON.length();
 			if (len > 0) {
 				byte[] newSeed = new byte[len];
@@ -542,49 +559,52 @@ public class Noiseed {
 				// If this part is reached the newSeed is valid
 				setWidth(len);
 				seed = newSeed;
-				statusCode += 1;
+				return 1;
 			} else {
 				// Array is empty
 				return 0;
 			}
-		}
+	}
 
-		// If setRules check if RULEKEY exists and content is not null
-		if (setRules && contentJSON.has(RULEKEY) && !contentJSON.isNull(RULEKEY)) {
-			JSONObject rulesJSON = contentJSON.getJSONObject(RULEKEY);
-			int len = rulesJSON.length();
-			// Make sure entries sum up to a power of two
-			// https://www.geeksforgeeks.org/java-program-to-find-whether-a-no-is-power-of-two/
-			int ceil = (int) (Math.ceil(Math.log(len) / Math.log(2)));
-			int floor = (int) (Math.floor(Math.log(len) / Math.log(2)));
-			if (len > 0 && floor == ceil) {
-				HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(len);
-				// Iterate over keys
-				for (Integer i = 0; i < len; i++) {
-					// Check that key exists and is not null
-					if (rulesJSON.has(i.toString()) && !rulesJSON.isNull(i.toString())) {
-						// Check that value is a Number
-						if (rulesJSON.get(i.toString()) instanceof Number) {
-							newRules.put(i, rulesJSON.getNumber(i.toString()).byteValue());
-						} else {
-							// Associated value is not a Number
-							return statusCode;
-						}
+	/**
+	 * Set the {@code rules} from a JSONObject.
+	 * 
+	 * @param json JSONObject containing rules information
+	 * @return 2 if rules were set, else 0
+	 */
+	private int setRulesFromJSON(JSONObject json) {
+		JSONObject rulesJSON = json.getJSONObject(RULEKEY);
+		int len = rulesJSON.length();
+		// Make sure entries sum up to a power of two
+		// https://www.geeksforgeeks.org/java-program-to-find-whether-a-no-is-power-of-two/
+		int ceil = (int) (Math.ceil(Math.log(len) / Math.log(2)));
+		int floor = (int) (Math.floor(Math.log(len) / Math.log(2)));
+		if (len > 0 && floor == ceil) {
+			HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(len);
+			// Iterate over keys
+			for (Integer i = 0; i < len; i++) {
+				// Check that key exists and is not null
+				if (rulesJSON.has(i.toString()) && !rulesJSON.isNull(i.toString())) {
+					// Check that value is a Number
+					if (rulesJSON.get(i.toString()) instanceof Number) {
+						newRules.put(i, rulesJSON.getNumber(i.toString()).byteValue());
 					} else {
-						// Key does not exist or value for associated key does not exist
-						return statusCode;
+						// Associated value is not a Number
+						return 0;
 					}
+				} else {
+					// Key does not exist or value for associated key does not exist
+					return 0;
 				}
-				// If this part is reached the newRules are valid
-				setRuleComplexity(ceil);
-				rules = newRules;
-				statusCode += 2;
-			} else {
-				// len is not a power of two
-				return statusCode;
 			}
+			// If this part is reached the newRules are valid
+			setRuleComplexity(ceil);
+			rules = newRules;
+			return 2;
+		} else {
+			// len is not a power of two
+			return 0;
 		}
-		return statusCode;
 	}
 
 	/**
