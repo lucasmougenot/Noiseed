@@ -7,7 +7,14 @@ import java.util.TreeSet;
 
 // HELPER FUNCTIONS
 public class Helper {
-    	
+
+	/*
+	 * Private constructor to restrict instantiation of Helper class.
+	 */
+	private Helper() {
+		throw new IllegalStateException("Helper class");
+	}
+
 	/**
 	 * Convenience function to concatenate file name and format.
 	 * 
