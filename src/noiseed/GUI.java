@@ -133,7 +133,6 @@ public class GUI implements ActionListener, ChangeListener {
 	private JFileChooser loadFromFileChooser = new JFileChooser(currentDir);;
 	
 	private ImageGenerator generator;
-	private ProgressBarUpdater updater;
 	
 	private Action generateAction = new GenerateAction();
 	private Action saveAction = new SaveAction();
@@ -703,7 +702,7 @@ public class GUI implements ActionListener, ChangeListener {
 		generator = new ImageGenerator();
 		generator.execute();
 		// Run progress bar on a separate thread
-		updater = new ProgressBarUpdater();
+		ProgressBarUpdater updater = new ProgressBarUpdater();
 		updater.execute();
 	}
 
