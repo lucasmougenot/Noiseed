@@ -139,6 +139,24 @@ public class Noiseed {
 		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 
+	/**
+	 * Construct a String containing an objects relevant field values
+	 */
+	public String toString() {
+		String info = "";
+		info += "width: " + getWidth() + ", ";
+		info += "height: " + getHeight() + ", ";
+		info += "n: " + getRuleComplexity() + ", ";
+		info += "colorZero: " + getColorZero() + ", ";
+		info += "colorOne: " + getColorOne() + ", ";
+		info += "keepCurrentSeed: " + getKeepCurrentSeed() + ", ";
+		info += "keepCurrentRules: " + getKeepCurrentRules() + ", ";
+		info += "edgeBehavior: " + getEdgeBehavior() + ", ";
+		info += "seed size: " + getSeedLength() + ", ";
+		info += "rules n: " + getCurrentRulesN();
+		return info;
+	}
+
 	// MAIN FUNCTION
 
 	// 						args[ amount 	width 	height 	n 	format	infoFile ]
