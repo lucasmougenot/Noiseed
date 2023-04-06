@@ -186,12 +186,9 @@ public class Noiseed {
 			if (args.length > INDEX_N) {
 				noiseed.setRuleComplexity(Integer.parseInt(args[INDEX_N]));
 			}
-			// Set format
-			if (args.length > INDEX_FORMAT) {
-				// Check if entered format is available
-				if (Arrays.stream(Noiseed.AVAILABLE_FORMATS).anyMatch(format::equalsIgnoreCase)) {
-					format = args[INDEX_FORMAT];
-				}
+			// Set format if available
+			if (args.length > INDEX_FORMAT && Arrays.stream(Noiseed.AVAILABLE_FORMATS).anyMatch(format::equalsIgnoreCase)) {
+				format = args[INDEX_FORMAT];
 			}
 			// JSON file from which to load seed and rules
 			if (args.length > INDEX_INFOFILE) {
