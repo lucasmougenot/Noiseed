@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
@@ -36,6 +37,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -532,7 +534,7 @@ public class GUI implements ActionListener, ChangeListener {
 		frame.add(progressBar, BorderLayout.SOUTH);
 
 		// Set up the frame
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setIconImage(ICON.getImage());
 		frame.setMinimumSize(FRAME_MIN_SIZE);
 		frame.getContentPane().setBackground(Color.BLACK);
@@ -541,7 +543,7 @@ public class GUI implements ActionListener, ChangeListener {
 		detectScreensize();
 		frame.pack();
 		if ((frame.getSize().getWidth() >= screenWidth) || (frame.getSize().getHeight() >= screenHeight)) {
-			frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+			frame.setExtendedState(Frame.MAXIMIZED_BOTH); 
 		}
 		// Display GUI
 		frame.setVisible(true);
