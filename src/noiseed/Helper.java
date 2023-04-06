@@ -70,7 +70,7 @@ public class Helper {
 	 */
 	public static int getStringArrayIndex(String searchString, String[] stringArray) {
 		for (int i = 0; i < stringArray.length; i++) {
-			if (stringArray[i] == searchString) {
+			if (stringArray[i].equals(searchString)) {
 				return i;
 			}
 		}
