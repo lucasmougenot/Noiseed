@@ -66,8 +66,7 @@ public class GUI implements ActionListener, ChangeListener {
 	public static final int SPINNER_MAX_VALUE 			= Integer.MAX_VALUE;
 	
 	// DEFAULT preset
-	// TODO load custom presets
-	public static final String DEFAULT_PRESET_SIZE		= 	"1920x1080";	
+	public static final String DEFAULT_PRESET_SIZE		= 	"1920x1080";
 	private static final String[] PRESETS				= {	"16x16", 
 															"32x32", 
 															"48x48", 
