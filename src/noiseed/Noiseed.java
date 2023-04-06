@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.JSONArray;
@@ -88,7 +89,7 @@ public class Noiseed {
 	// First row of the image containing 0s and 1s
 	private byte[] seed;
 	// (1 << n) is equivalent to 2**n | 2^n | two to the power of n
-	private HashMap<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
+	private Map<Integer, Byte> rules = new HashMap<Integer, Byte>(1 << n);
 
 	// 2-dimensional array representing the image containing 0s and 1s
 	private byte[][] rowList;
@@ -353,8 +354,8 @@ public class Noiseed {
 	 * 
 	 * @return {@code Hashmap} with 2^n rules, each rule represented by a Key (1 to 2^n) and Value (1 or 0)
 	 */
-	public HashMap<Integer, Byte> createRules() {
-		HashMap<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
+	public Map<Integer, Byte> createRules() {
+		Map<Integer, Byte> newRules = new HashMap<Integer, Byte>(1 << n);
 		for (int i = 0; i < (1 << n); i++) {
 			newRules.put(i, (byte) ThreadLocalRandom.current().nextInt(0, 2));
 		}
@@ -819,7 +820,7 @@ public class Noiseed {
 	 * 
 	 * @return {@code rules}
 	 */
-	public HashMap<Integer, Byte> getRules() {
+	public Map<Integer, Byte> getRules() {
 		// Copy so that rules can not be modified by returned reference
 		return new HashMap<Integer, Byte>(rules);
 	}
@@ -829,7 +830,7 @@ public class Noiseed {
 	 * 
 	 * @param newRules the new {@code rules}
 	 */
-	public void setRules(HashMap<Integer, Byte> newRules) {
+	public void setRules(Map<Integer, Byte> newRules) {
 		// Copy so that rules can not be modified by newRules reference
 		rules = new HashMap<Integer, Byte>(newRules);
 	}
