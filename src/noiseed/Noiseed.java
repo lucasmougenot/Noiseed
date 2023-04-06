@@ -36,6 +36,22 @@ public class Noiseed {
 	// Default flags
 	public static final boolean DEFAULT_KEEP_CURRENT_SEED = false;
 	public static final boolean DEFAULT_KEEP_CURRENT_RULES = false;
+	// Default edge behavior
+	public static final EdgeBehavior DEFAULT_EDGE_BEHAVIOR = EdgeBehavior.WRAP;
+
+	/**
+	 * Possible edge behaviors.
+	 */
+	public enum EdgeBehavior {
+		/**
+		 * Wrap window positions outside the array around with modulo.
+		 */
+		WRAP, 
+		/**
+		 * Cut off window positions outside the array.
+		 */
+		CUT
+	}
 
 	// JSON keys
 	public static final String SEEDKEY = "seed";
@@ -65,6 +81,9 @@ public class Noiseed {
 	// Flags to retain current seed and/or rules
 	private boolean keepCurrentSeed;
 	private boolean keepCurrentRules;
+
+	// Edge behavior to be used for rowList computation
+	private EdgeBehavior edgeBehavior;
 
 	// First row of the image containing 0s and 1s
 	private byte[] seed;
@@ -100,6 +119,7 @@ public class Noiseed {
 		setColorOne(DEFAULT_COLOR_ONE);
 		setKeepCurrentSeed(DEFAULT_KEEP_CURRENT_SEED);
 		setKeepCurrentRules(DEFAULT_KEEP_CURRENT_RULES);
+		setEdgeBehavior(DEFAULT_EDGE_BEHAVIOR);
 	}
 
 	/**
@@ -843,6 +863,24 @@ public class Noiseed {
 	 */
 	public void setKeepCurrentRules(boolean newKeepCurrentRules) {
 		keepCurrentRules = newKeepCurrentRules;
+	}
+
+	/**
+	 * Get {@code edgeBehavior}
+	 * 
+	 * @return {@code edgeBehavior}
+	 */
+	public EdgeBehavior getEdgeBehavior() {
+		return edgeBehavior;
+	}
+
+	/**
+	 * Set {@code edgeBehavior}
+	 * 
+	 * @param newEdgeBehavior the new value determining edge behavior in rowList construction
+	 */
+	public void setEdgeBehavior(EdgeBehavior newEdgeBehavior) {
+		edgeBehavior = newEdgeBehavior;
 	}
 
 	/**
