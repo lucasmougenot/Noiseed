@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
@@ -44,6 +46,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.util.Arrays;
+
+import noiseed.Noiseed.EdgeBehavior;
 
 public class GUI implements ActionListener, ChangeListener {
 	
@@ -102,6 +106,7 @@ public class GUI implements ActionListener, ChangeListener {
 	private JLabel widthLabel 					= new JLabel("Width: ", null, SwingConstants.RIGHT);
 	private JLabel heightLabel 					= new JLabel("Height: ", null, SwingConstants.RIGHT);
 	private JLabel ruleComplexityLabel 			= new JLabel("Rule complexity: ", null, SwingConstants.RIGHT);
+	private JLabel edgeBehaviorLabel 			= new JLabel("Edge behavior: ", null, SwingConstants.RIGHT);
 	// Panel containing the control elements
 	private JPanel controlPanel 				= new JPanel();
 	// Panel displaying the image
@@ -114,6 +119,8 @@ public class GUI implements ActionListener, ChangeListener {
 	private JButton loadButton 					= new JButton("Load JSON");
 	private JButton colorButtonA 				= new JButton("Color A");
 	private JButton colorButtonB 				= new JButton("Color B");
+	private JRadioButton wrapRadioButton 		= new JRadioButton("Wrap");
+	private JRadioButton cutRadioButton 		= new JRadioButton("Cut");
 	private JCheckBox keepSeedCheckBox 			= new JCheckBox("Keep seed", false);
 	private JCheckBox keepRulesCheckBox 		= new JCheckBox("Keep rules", false);	
 	private JComboBox<String> presetComboBox 	= new JComboBox<>(PRESETS);
@@ -379,6 +386,8 @@ public class GUI implements ActionListener, ChangeListener {
 		keepSeedCheckBox.addActionListener(this);
 		keepRulesCheckBox.addActionListener(this);
 		presetComboBox.addActionListener(this);
+		wrapRadioButton.addActionListener(this);
+		cutRadioButton.addActionListener(this);
 		
 		// Add ChangeListeners
 		widthSpinner.addChangeListener(this);
@@ -459,7 +468,10 @@ public class GUI implements ActionListener, ChangeListener {
 		keepRulesCheckBox.setBackground(Color.BLACK);
 		controlPanel.setBackground(Color.BLACK);
 		imagePanel.setBackground(Color.BLACK);
-		
+		edgeBehaviorLabel.setBackground(Color.BLACK);
+		wrapRadioButton.setBackground(Color.BLACK);
+		cutRadioButton.setBackground(Color.BLACK);
+
 		// Set foreground color
 		progressBar.setForeground(Color.BLACK);
 		keepSeedCheckBox.setForeground(Color.WHITE);
@@ -468,6 +480,9 @@ public class GUI implements ActionListener, ChangeListener {
 		heightLabel.setForeground(Color.WHITE);
 		ruleComplexityLabel.setForeground(Color.WHITE);
 		presetLabel.setForeground(Color.WHITE);
+		edgeBehaviorLabel.setForeground(Color.WHITE);
+		wrapRadioButton.setForeground(Color.WHITE);
+		cutRadioButton.setForeground(Color.WHITE);
 		
 		// Set up saveAsFileChooser
 		String saveDescription = Helper.getFileFormatFilterDescription("Images", Noiseed.getAvailableFormats());
@@ -506,20 +521,52 @@ public class GUI implements ActionListener, ChangeListener {
 		controlPanel.add(loadButton);
 		controlPanel.add(colorButtonA);
 		controlPanel.add(colorButtonB);
-		// Empty JLabel for 1 unit of space
-		controlPanel.add(new JLabel());
-		controlPanel.add(keepSeedCheckBox);
-		controlPanel.add(keepRulesCheckBox);
+
+		JPanel optionPanel = new JPanel(new GridLayout());
+		optionPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.WHITE));
+		optionPanel.add(keepSeedCheckBox);
+		optionPanel.add(keepRulesCheckBox);
+		controlPanel.add(optionPanel);
 
 		// Add the second row of elements
-		controlPanel.add(presetLabel);
-		controlPanel.add(presetComboBox);
-		controlPanel.add(widthLabel);
-		controlPanel.add(widthSpinner);
-		controlPanel.add(heightLabel);
-		controlPanel.add(heightSpinner);
-		controlPanel.add(ruleComplexityLabel);
-		controlPanel.add(ruleComplexitySpinner);
+
+		JPanel presetsPanel = new JPanel(new GridLayout());
+		presetsPanel.setBackground(Color.BLACK);
+		presetsPanel.add(presetLabel);
+		presetsPanel.add(presetComboBox);
+		controlPanel.add(presetsPanel);
+
+		JPanel widthPanel = new JPanel(new GridLayout());
+		widthPanel.setBackground(Color.BLACK);
+		widthPanel.add(widthLabel);
+		widthPanel.add(widthSpinner);
+		controlPanel.add(widthPanel);
+
+		JPanel heightPanel = new JPanel(new GridLayout());
+		heightPanel.setBackground(Color.BLACK);
+		heightPanel.add(heightLabel);
+		heightPanel.add(heightSpinner);
+		controlPanel.add(heightPanel);
+
+		JPanel ruleComplexityPanel = new JPanel(new GridLayout());
+		ruleComplexityPanel.setBackground(Color.BLACK);
+		ruleComplexityPanel.add(ruleComplexityLabel);
+		ruleComplexityPanel.add(ruleComplexitySpinner);
+		controlPanel.add(ruleComplexityPanel);
+
+		controlPanel.add(edgeBehaviorLabel);
+
+		JPanel radioPanel = new JPanel(new GridLayout());
+		radioPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.WHITE));
+
+		ButtonGroup radioButtonGroup = new ButtonGroup();		
+		radioButtonGroup.add(wrapRadioButton);
+		radioButtonGroup.add(cutRadioButton);
+		wrapRadioButton.setSelected(noiseed.getEdgeBehavior() == EdgeBehavior.WRAP);
+		cutRadioButton.setSelected(noiseed.getEdgeBehavior() == EdgeBehavior.CUT);
+		radioPanel.add(wrapRadioButton);
+		radioPanel.add(cutRadioButton);
+		controlPanel.add(radioPanel);
 
 		// Set up scrollPane
 		scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -653,6 +700,12 @@ public class GUI implements ActionListener, ChangeListener {
 		} else if (e.getSource() == keepRulesCheckBox) {
 			noiseed.setKeepCurrentRules(keepRulesCheckBox.isSelected());
 			setRuleSpinner(noiseed.getCurrentRulesN());
+		// Edge wrap behavior
+		} else if (e.getSource() == wrapRadioButton) {
+			noiseed.setEdgeBehavior(EdgeBehavior.WRAP);
+		// Edge cut behavior
+		} else if (e.getSource() == cutRadioButton){
+			noiseed.setEdgeBehavior(EdgeBehavior.CUT);
 		}
 	}
 
