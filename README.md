@@ -84,6 +84,7 @@ Therefore **x = 0**.
 - Select standard sizes from presets
 - Keep current seed for next image generation
 - Keep current rules for next image generation
+- 2 different edge behavior modes (wrap and cut)
 
 ## Known Issues
 
