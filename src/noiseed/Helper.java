@@ -62,6 +62,45 @@ public class Helper {
 	}
 
 	/**
+	 * Generate a file name from current timestamp. 
+	 * If file name is already in use, append hashcode of random Integer and check validity again.
+	 * 
+	 * @param extension the image format of the file
+	 * @return file name that is unused for extensions .{format} and ".json"
+	 */
+	public static String generateUnusedFilename(String extension) {
+		// Generate file name from current time
+		String fileName = Helper.dateTimeToString();
+		String fullImageFileName = Helper.setFileName(fileName, extension);
+		String fullJSONFileName = Helper.setFileName(fileName, "json");
+		boolean fileExists = (Files.exists(Path.of(fullImageFileName)) || Files.exists(Path.of(fullJSONFileName)));
+		StringBuilder strBuilder = new StringBuilder(fileName);
+		// Generate a filename, retry if it already exists
+		while (fileExists) {
+			// General filename limit of 255 Bytes
+			// Assuming the following:
+			// ".json" adds 5 Bytes
+			// image format extensions are generally at most (1 Byte) characters long
+			// 9-10 (1 Byte) numbers (and "-")
+			// 1 Byte of buffer in the worst case (239+10+5=254) 
+			if (strBuilder.toString().getBytes(StandardCharsets.UTF_8).length > 240) {
+				// Retry a new timestamp
+				fileName = Helper.dateTimeToString();
+				strBuilder = new StringBuilder(fileName);
+			} else {
+				// Append "_random" number to fileName until file name is unique
+				strBuilder.append("_");
+				strBuilder.append(String.valueOf(Integer.valueOf(ThreadLocalRandom.current().nextInt()).hashCode()));
+			}
+			fullImageFileName = Helper.setFileName(fileName, extension);
+			fullJSONFileName = Helper.setFileName(fileName, "json");
+			// Check if file names already exist
+			fileExists = (Files.exists(Path.of(fullImageFileName)) || Files.exists(Path.of(fullJSONFileName)));
+		}
+		return strBuilder.toString();
+	}
+
+	/**
 	 * Get the index position of a {@code String} matching an array entry.
 	 * 
 	 * @param searchString a {@code String} to be matched

@@ -184,7 +184,6 @@ public class Noiseed {
 	 * 			{@code args[5]} infoFile containing seed and/or rules for image generation
 	 */
 	public static void main(String[] args) {
-
 		// Indices for args[]
 		final int INDEX_AMOUNT 		= 0;
 		final int INDEX_WIDTH 		= 1;
@@ -192,8 +191,6 @@ public class Noiseed {
 		final int INDEX_N 			= 3;
 		final int INDEX_FORMAT 		= 4;
 		final int INDEX_INFOFILE 	= 5;
-		// Max args count
-		final int MAX_ARGS 			= 6;
 
 		// Default value needs to be greater than 0
 		int amountToBeGenerated = 1;
@@ -205,41 +202,39 @@ public class Noiseed {
 		int statusCodeInfoFile = 0;
 		// Default image format
 		String format = DEFAULT_IMAGE_FORMAT;
-
 		// Initialize default Noiseed object
 		Noiseed noiseed = new Noiseed();
 
-		// 1-5 args are valid, unsupplied args are replaced by default values
-		if (args.length > 0 && args.length <= MAX_ARGS) {
-			// Amount of images to be generated
+		// Amount of images to be generated
+		if (args.length > INDEX_AMOUNT) {
 			// 0 (or smaller) for unlimited images (until stopping the program or error)
 			int amount = Integer.parseInt(args[INDEX_AMOUNT]);
 			if (amount > 0) {
 				amountToBeGenerated = amount;
 				decrementAmount = true;
 			}
-			// Width of image
-			if (args.length > INDEX_WIDTH) {
-				noiseed.setWidth(Integer.parseInt(args[INDEX_WIDTH]));
-			}
-			// Height of image
-			if (args.length > INDEX_HEIGHT) {
-				noiseed.setHeight(Integer.parseInt(args[INDEX_HEIGHT]));
-			}
-			// Rule complexity of rules (2^n rules)
-			if (args.length > INDEX_N) {
-				noiseed.setRuleComplexity(Integer.parseInt(args[INDEX_N]));
-			}
-			// Set format if available
-			if (args.length > INDEX_FORMAT && Arrays.stream(Noiseed.AVAILABLE_FORMATS).anyMatch(format::equalsIgnoreCase)) {
-				format = args[INDEX_FORMAT];
-			}
-			// JSON file from which to load seed and rules
-			if (args.length > INDEX_INFOFILE) {
-				String infoFileName = args[INDEX_INFOFILE];
-				// Sets seed and rules if present in JSON file
-				statusCodeInfoFile = noiseed.setFromJSON(infoFileName, true, true);
-			}
+		}
+		// Width of image
+		if (args.length > INDEX_WIDTH) {
+			noiseed.setWidth(Integer.parseInt(args[INDEX_WIDTH]));
+		}
+		// Height of image
+		if (args.length > INDEX_HEIGHT) {
+			noiseed.setHeight(Integer.parseInt(args[INDEX_HEIGHT]));
+		}
+		// Rule complexity of rules (2^n rules)
+		if (args.length > INDEX_N) {
+			noiseed.setRuleComplexity(Integer.parseInt(args[INDEX_N]));
+		}
+		// Set format if available
+		if (args.length > INDEX_FORMAT && Arrays.stream(Noiseed.AVAILABLE_FORMATS).anyMatch(format::equalsIgnoreCase)) {
+			format = args[INDEX_FORMAT];
+		}
+		// JSON file from which to load seed and rules
+		if (args.length > INDEX_INFOFILE) {
+			String infoFileName = args[INDEX_INFOFILE];
+			// Sets seed and rules if present in JSON file
+			statusCodeInfoFile = noiseed.setFromJSON(infoFileName, true, true);
 		}
 
 		// Generate images infinitely or according to amount
@@ -250,46 +245,39 @@ public class Noiseed {
 			noiseed.setKeepCurrentRules(keepRulesFromStatusCode(statusCodeInfoFile));
 			// Generate the image
 			noiseed.generateImage();
-
-			// Generate a fileName
-			String fileName = Helper.dateTimeToString();
-			String fullImageFileName = Helper.setFileName(fileName, format);
-
-			// Check if a file with fileName already exists
-			Path path = Path.of(fullImageFileName);
-			boolean fileExists = Files.exists(path);
-
-			// Limit retries for following file existence checking
-			int retries = 5;
-			// If file already exists, regenerate a fileName
-			while (fileExists) {
-				// Abort program after exhausting all retries
-				if (retries == 0) {
-					System.out.println("Can not generate unused file name");
-					System.out.println("Last try was: " + fullImageFileName);
-					return;
-				}
-				fileName = Helper.dateTimeToString();
-				fullImageFileName = Helper.setFileName(fileName, format);
-				path = Path.of(fullImageFileName);
-				fileExists = Files.exists(path);
-				--retries;
-			}
-			// Save generated image
-			boolean imageSaved = noiseed.saveImage(fileName, format);
-			if (!imageSaved) {
-				System.out.println("Could not save image file " + fullImageFileName);
-			}
-			// Save info file
-			String infoFileName = fileName + "_info";
-			boolean infoSaved = saveJSON(infoFileName, noiseed.createInfoJSONObject());
-			if (!infoSaved) {
-				System.out.println("Could not save info file " + infoFileName + ".json");
-			}
+			// Find unused filename
+			// Existence check and saving as file steps are obviously not atomic
+			// so a file with a colliding name could be created in the time between
+			// This risk is ignored here!
+			// Hopefully the following building blocks reduce the chance of filename collisions:
+			// Timestamp including nanoseconds
+			// Image and json file format extensions
+			// optional: hashcode of a random Long as String recursively appended to the timestamp
+			String fileName = Helper.generateUnusedFilename(format);
+			// Save image and its associated info to .{format} and .json files
+			noiseed.saveFiles(fileName, format);
 			// If an amount was supplied, decrement counter variable
-			if (decrementAmount) {
-				--amountToBeGenerated;
-			}
+			amountToBeGenerated -= decrementAmount ? 1 : 0;
+		}
+	}
+
+	/**
+	 * Save the current {@code img} and its associated rules as image and json files.
+	 *  
+	 * @param fileName the base name of the files
+	 * @param imageFormat the image format of the file
+	 */
+	private void saveFiles(String fileName, String imageFormat) {
+		// Save generated image
+		boolean imageSaved = saveImage(fileName, imageFormat);
+		if (!imageSaved) {
+			System.out.println("Could not save image file " + Helper.setFileName(fileName, imageFormat));
+		}
+		// Save info file
+		String infoFileName = fileName + "_info";
+		boolean infoSaved = saveJSON(infoFileName, this.createInfoJSONObject());
+		if (!infoSaved) {
+			System.out.println("Could not save info file " + infoFileName + ".json");
 		}
 	}
 
