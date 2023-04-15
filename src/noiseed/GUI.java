@@ -222,8 +222,6 @@ public class GUI implements ActionListener, ChangeListener {
 
 	class GenerateAction extends AbstractAction {
 
-		private static final long serialVersionUID = 2560744601307475324L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			generateButton.doClick();
@@ -231,8 +229,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class SaveAction extends AbstractAction {
-
-		private static final long serialVersionUID = 2913333663614586716L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -242,8 +238,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class LoadAction extends AbstractAction {
 
-		private static final long serialVersionUID = 2401147703598620496L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			loadButton.doClick();			
@@ -251,8 +245,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class ColorAAction extends AbstractAction {
-
-		private static final long serialVersionUID = -464849529571716841L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -262,8 +254,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class ColorBAction extends AbstractAction {
 
-		private static final long serialVersionUID = 36070904879421503L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			colorButtonB.doClick();			
@@ -271,8 +261,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class KeepSeedAction extends AbstractAction {
-
-		private static final long serialVersionUID = -1285620423963433373L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -282,8 +270,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class KeepRulesAction extends AbstractAction {
 
-		private static final long serialVersionUID = 8459557494685240522L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			keepRulesCheckBox.doClick();			
@@ -291,8 +277,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class IncrementWidthAction extends AbstractAction {
-
-		private static final long serialVersionUID = -7615104684573087063L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -303,8 +287,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class DecrementWidthAction extends AbstractAction {
 
-		private static final long serialVersionUID = 4735788959117114279L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
@@ -313,8 +295,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class IncrementHeightAction extends AbstractAction {
-
-		private static final long serialVersionUID = -7170552381164150222L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -325,8 +305,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class DecrementHeightAction extends AbstractAction {
 
-		private static final long serialVersionUID = 8132822577542541392L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
@@ -336,8 +314,6 @@ public class GUI implements ActionListener, ChangeListener {
 	
 	class IncrementRuleComplexityAction extends AbstractAction {
 
-		private static final long serialVersionUID = -4933428000742101812L;
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setter clamps
@@ -346,8 +322,6 @@ public class GUI implements ActionListener, ChangeListener {
 	}
 	
 	class DecrementRuleComplexityAction extends AbstractAction {
-
-		private static final long serialVersionUID = 8509788842486708299L;
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
