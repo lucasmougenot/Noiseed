@@ -602,11 +602,22 @@ public class GUI implements ActionListener, ChangeListener {
 	 * @param currentButton button which regains focus after re-enabling buttons
 	 */
 	private void enableButtons(boolean enable, JButton currentButton) {
+		// First row
     	generateButton.setEnabled(enable);
     	saveButton.setEnabled(enable);
     	loadButton.setEnabled(enable);
     	colorButtonA.setEnabled(enable);
 		colorButtonB.setEnabled(enable);
+		keepSeedCheckBox.setEnabled(enable);
+		keepRulesCheckBox.setEnabled(enable);
+		// Second row
+		presetComboBox.setEnabled(enable);
+		widthSpinner.setEnabled(enable);
+		heightSpinner.setEnabled(enable);
+		ruleComplexitySpinner.setEnabled(enable);
+		wrapRadioButton.setEnabled(enable);
+		cutRadioButton.setEnabled(enable);
+		// Reset focus
 		if (enable) {
 			currentButton.requestFocusInWindow();
 		}
