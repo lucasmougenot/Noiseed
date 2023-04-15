@@ -47,11 +47,32 @@ public class Noiseed {
 		/**
 		 * Wrap window positions outside the array around with modulo.
 		 */
-		WRAP, 
+		WRAP {
+			@Override
+			int initialWindowIndex(int n, int k, int width) {
+				return Math.floorMod((n / 2) - k, width);
+			}
+			@Override
+			int windowSlideIndex(int n, int x, int width) {
+				return Math.floorMod((n / 2) + x, width);
+			}
+		}, 
 		/**
 		 * Cut off window positions outside the array.
 		 */
-		CUT
+		CUT {
+			@Override
+			int initialWindowIndex(int n, int k, int width) {
+				return (n / 2) - k;
+			}
+			@Override
+			int windowSlideIndex(int n, int x, int width) {
+				return (n / 2) + x;
+			}
+		};
+
+		abstract int initialWindowIndex(int n, int k, int width);
+		abstract int windowSlideIndex(int n, int x, int width);
 	}
 
 	// JSON keys
@@ -408,23 +429,16 @@ public class Noiseed {
 			// Example for n = 3
 			// (row y-1) ... | ... [ MSB | BIT | LSB ] ... | ...
 			// (row y)   ... | x-2 | x-1 |  x  | x+1 | x+2 | ...
-			int xWindowIndex;
-			// WRAP
-			if (edgeBehavior == EdgeBehavior.WRAP) {
-				xWindowIndex = Math.floorMod((n / 2) - k, width);
-			// CUT
-			} else if (edgeBehavior == EdgeBehavior.CUT) {
-				xWindowIndex = (n / 2) - k;
-				// All releveant entries have been calculated
-				if (xWindowIndex < 0) {
-					return ruleKey;
-				// Ignore indices "outside" of the array
-				} else if (xWindowIndex >= width) {
-					continue;
-				}
-			// edgeBehavior contains illegal value
-			} else {
-				throw new IllegalStateException("Field edgeBehavior is not initialized correctly");
+			// 
+			int xWindowIndex = edgeBehavior.initialWindowIndex(n, k, width);
+			// All relevant entries have been calculated
+			if (xWindowIndex < 0) {
+				// Window calculation happens from "right" to "left"
+				// so all remaining indices would lie out of bounds to the "left"
+				return ruleKey;
+			// Skip over indices that are out of bounds to the "right"
+			} else if (xWindowIndex >= width) {
+				continue;
 			}
 			// Add 2^k to ruleKey if entry is 1
 			if (newRowList[y - 1][xWindowIndex] == 1) {
@@ -448,17 +462,11 @@ public class Noiseed {
 		ruleKey &= ~(1 << (n - 1));
 		// Shift left by 1
 		ruleKey <<= 1;
-		int xWindowIndex;
 		// Calculate x-coordinate index
-		// WRAP
-		if (edgeBehavior == EdgeBehavior.WRAP) {
-			xWindowIndex = Math.floorMod((n / 2) + x, width);
-		// CUT
-		} else {
-			xWindowIndex = (n / 2) + x;
-			if (xWindowIndex >= width) {
-				return ruleKey;
-			}
+		int xWindowIndex = edgeBehavior.windowSlideIndex(n, x, width);
+		// All releveant entries have been calculated since the window slides to the "right"
+		if (xWindowIndex >= width) {
+			return ruleKey;
 		}
 		// Check rightmost entry of window
 		if (newRowList[y - 1][xWindowIndex] == 1) {
