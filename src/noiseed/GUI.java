@@ -155,6 +155,7 @@ public class GUI implements ActionListener, ChangeListener {
 	private Action decrementHeightAction = new DecrementHeightAction();		
 	private Action incrementRuleComplexityAction = new IncrementRuleComplexityAction();
 	private Action decrementRuleComplexityAction = new DecrementRuleComplexityAction();
+	private Action toggleRadiosAction = new ToggleRadiosAction();
 	
 	// THREADED TASK CLASSES
 
@@ -330,6 +331,17 @@ public class GUI implements ActionListener, ChangeListener {
 		}		
 	}
 
+	class ToggleRadiosAction extends AbstractAction {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (!wrapRadioButton.isSelected()) {
+				wrapRadioButton.doClick();
+			} else {
+				cutRadioButton.doClick();
+			}
+		}		
+	}
 	// MAIN FUNCTION
 
 	/**
@@ -379,6 +391,8 @@ public class GUI implements ActionListener, ChangeListener {
 		widthSpinner.setToolTipText("(-) LEFT/RIGHT (+)");
 		heightSpinner.setToolTipText("(-) DOWN/UP (+)");
 		ruleComplexitySpinner.setToolTipText("(-) A/Q (+)");
+		wrapRadioButton.setToolTipText("T");
+		cutRadioButton.setToolTipText("T");
 		
 		// SET UP KEY BINDINGS
 		// ORDER MATTERS
@@ -394,7 +408,8 @@ public class GUI implements ActionListener, ChangeListener {
 									"IncrementHeight",
 									"DecrementHeight",
 									"IncrementRuleComplexity",
-									"DecrementRuleComplexity"};
+									"DecrementRuleComplexity",
+									"ToggleRadios"};
 		// ORDER MATTERS
 		int[] keyCodes = {	KeyEvent.VK_G,
 							KeyEvent.VK_S,
@@ -408,7 +423,8 @@ public class GUI implements ActionListener, ChangeListener {
 							KeyEvent.VK_UP,
 							KeyEvent.VK_DOWN,
 							KeyEvent.VK_Q,
-							KeyEvent.VK_A};
+							KeyEvent.VK_A,
+							KeyEvent.VK_T};
 		// ORDER MATTERS
 		Action[] actions = {generateAction, 
 							saveAction, 
@@ -422,7 +438,8 @@ public class GUI implements ActionListener, ChangeListener {
 							incrementHeightAction,
 							decrementHeightAction, 
 							incrementRuleComplexityAction,
-							decrementRuleComplexityAction};
+							decrementRuleComplexityAction,
+							toggleRadiosAction};
 		
 		// FIRST N ENTRIES ARE ON_RELEASE EVENTS
 		int indexSetOnrelease = 6;
